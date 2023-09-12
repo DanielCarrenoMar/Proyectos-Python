@@ -1,6 +1,7 @@
 import keyboard
 import time
 import subprocess
+import os
 
 Nombres = {
     "Prueba1": "codigo1",
@@ -17,6 +18,4 @@ class corazon():
 
 
     def Codigo2():
-        code = 'python -u "c:\\Users\\EQUIPO i3\\Documents\\Codigos\\Proyecto1\\constantes\\code\\Basadobot.py"'
-        subprocess.call(code, shell=True)
-        print("Codigo 2")
+        print("Code2")
