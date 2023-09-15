@@ -1,7 +1,5 @@
 import keyboard
 import time
-import subprocess
-import os
 
 Nombres = {
     "Prueba1": "codigo1",
