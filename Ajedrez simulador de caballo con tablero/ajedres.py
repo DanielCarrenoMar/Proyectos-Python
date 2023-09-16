@@ -11,25 +11,27 @@ class pieza:
     #Se encarga de mostrar los posibles movimientos
     def movimiento(self):
         i = 1
+        letras = ["a","b","c","d","f","g","h"]
         for y in range(1,9):
             for x in range(1,9):
                 if x == self.X + 1 and y == self.Y + 2:
-                    print(str(i) + "-","Casilla", x,y)
+                    print(str(i) + "-","Casilla", letras[x-1]+str(y))
                     i += 1
                 if x == self.X - 1 and y == self.Y + 2:
-                    print(str(i) + "-","Casilla", x,y)
+                    print(str(i) + "-","Casilla", letras[x-1]+str(y))
                     i += 1
                 if x == self.X - 1 and y == self.Y - 2:
-                    print(str(i) + "-","Casilla", x,y)
+                    print(str(i) + "-","Casilla", letras[x-1]+str(y))
                     i += 1
                 if x == self.X + 1 and y == self.Y - 2:
-                    print(str(i) + "-","Casilla", x,y)
+                    print(str(i) + "-","Casilla", letras[x-1]+str(y))
                     i += 1
 
     #Se encarga de mostrar el tablero donde se encuntra la pieza
     def tablero(self):
-        tablero = Fore.WHITE +"|"
+        tablero = Fore.WHITE +"1|"
         i = 0
+        print(Fore.WHITE +"   a b c d e f g h")
         for y in range(1,9):
             for x in range(1,9):
                 i +=1
@@ -49,7 +51,7 @@ class pieza:
                 if i > 7:
                     tablero += "|"
                     print(tablero.center(30, " "))
-                    tablero = "|"
+                    tablero = str(y+1)+"|"
                     i = 0
         
 # Pedir coordenadas de la pieza
@@ -76,5 +78,4 @@ while True:
     print(Fore.GREEN + "TABLERO".center(30, " "))
     caballo.tablero()
     print(Style.RESET_ALL)
-    input("Pulse Enter")
     break
