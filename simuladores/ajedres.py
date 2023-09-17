@@ -73,9 +73,12 @@ while True:
 while True:
     print(Fore.BLUE + "PIEZA CABALLO".center(30, " "))
     print(("Coord X: " + str(caballo.X) + " Coord Y: " + str(caballo.Y)).center(30, " "))
+
     print(Fore.RED + "POSIBLES MOVIMIENTOS".center(30, " "))
     caballo.movimiento()
+
     print(Fore.GREEN + "TABLERO".center(30, " "))
     caballo.tablero()
+    
     print(Style.RESET_ALL)
     break
