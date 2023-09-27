@@ -83,12 +83,17 @@ class Pieza:
         self.y += 1
 
     def dere(self):
-        """colision_dere = []
-        for dere in range(4):
-            map_piezas[self.pieza][self.rotacion][dere][0]
-            map_piezas[self.pieza][self.rotacion][dere][1]
-            """
-        if self.x <= juegoX+juegoDimX-self.mascaraX-1:
+        coordenadas_mas_dere = {}
+        espacio = False
+        for x,y in map_piezas[self.pieza][self.rotacion]:
+            if y not in coordenadas_mas_dere or x > coordenadas_mas_dere[x]:
+                coordenadas_mas_dere[y] = x
+        for x in coordenadas_mas_dere:
+            x = coordenadas_mas_dere[y]
+            if pantalla_madre[self.y + y][self.x + x + 1] != 0:
+                espacio = True
+
+        if self.x <= juegoX+juegoDimX-self.mascaraX-1 and espacio == True:
             self.x += 1
 
     def izqu(self):
@@ -112,12 +117,11 @@ class Pieza:
                 self.mascaraY = map_piezas[self.pieza][self.rotacion][dibujo][1]+1
 
     def colision(self):
+        coordenadas_mas_bajas = {}
 
         if self.y+self.mascaraY >= juegoY+juegoDimY:
                 return(True)
         
-        global coordenadas_mas_bajas
-        coordenadas_mas_bajas = {}
         for x,y in map_piezas[self.pieza][self.rotacion]:
             if x not in coordenadas_mas_bajas or y > coordenadas_mas_bajas[x]:
                 coordenadas_mas_bajas[x] = y
@@ -125,10 +129,6 @@ class Pieza:
             y = coordenadas_mas_bajas[x]
             if pantalla_madre[self.y + y + 1][self.x + x] != 0:
                 return(True)
-
-        """for colision in range(self.mascaraX):
-            if pantalla_madre[self.y+self.mascaraY][self.x+colision] != 0 or pantalla_madre[self.y+self.mascaraY][self.x+colision] != 0:
-                return(True)"""
 
     def congelar(self):
         for dibujo in range(4):
@@ -177,7 +177,6 @@ while True:
 
     #Se muestra la pantalla y se elimina
     actualizar_pantalla(pantalla_madre)
-    print(coordenadas_mas_bajas)
     #actualizar_pantalla(memoria)
     time.sleep(0.2)
     os.system("cls")
