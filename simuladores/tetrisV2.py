@@ -86,11 +86,11 @@ class Pieza:
         coordenadas_mas_dere = {}
         espacio = False
         for x,y in map_piezas[self.pieza][self.rotacion]:
-            if y not in coordenadas_mas_dere or x > coordenadas_mas_dere[x]:
+            if y not in coordenadas_mas_dere or x > coordenadas_mas_dere[y]:
                 coordenadas_mas_dere[y] = x
         for x in coordenadas_mas_dere:
             x = coordenadas_mas_dere[y]
-            if pantalla_madre[self.y + y][self.x + x + 1] != 0:
+            if pantalla_madre[self.y + y][self.x + x + 1] == 0:
                 espacio = True
 
         if self.x <= juegoX+juegoDimX-self.mascaraX-1 and espacio == True:
