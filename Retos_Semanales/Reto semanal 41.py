@@ -147,8 +147,37 @@ class Game:
             return(True)
     
     def _pregunta(self):
-        preguntas = ["¿Cuál es el lugar más frío de la tierra?","¿Quién escribió La Odisea?","¿Dónde originaron los juegos olímpicos?"]
-        respuestas = [["la antartida", "antartida"],["homero"],["olimpia"]]
+        preguntas = [
+            "¿Cuál es el lugar más frío de la tierra?",
+            "¿Quién escribió La Odisea?",
+            "¿Dónde originaron los juegos olímpicos?",
+            "¿Cuál es el río más largo del mundo?",
+            "¿Quién escribió la novela 'Cien años de soledad'?",
+            "¿Cuál es el país más grande del mundo por área?",
+            "¿Quién pintó la obra 'La noche estrellada'?",
+            "¿Cuál es el océano más grande del mundo?",
+            "¿En qué año se lanzó el primer juego de Super Mario Bros?",
+            "¿Cuál es el nombre del personaje principal en la serie de juegos 'The Legend of Zelda'?",
+            "¿Cuál es el nombre del personaje principal en la serie de juegos 'Assassin's Creed'?",
+            "¿Cuál es el nombre del personaje principal en la serie de juegos 'Final Fantasy'?",
+            "¿Cuál es el nombre del personaje principal en la serie de juegos 'Metal Gear Solid'?"
+            ]
+        respuestas = [
+            ["la antartida", "antartida"],
+            ["homero"],
+            ["olimpia"],
+            "nilo",
+            "gabriel garcia marquez",
+            "rusia",
+            "vincent van gogh",
+            "pacifico",
+            "1985",
+            "link",
+            "desmond miles",
+            "cloud strife",
+            "solid snake"
+            ]
+        
         while True:
             pregunta = randrange(0,len(preguntas))
 
