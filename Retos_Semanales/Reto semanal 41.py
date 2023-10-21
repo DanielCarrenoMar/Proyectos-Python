@@ -160,7 +160,8 @@ class Game:
             "¿Cuál es el nombre del personaje principal en la serie de juegos 'The Legend of Zelda'?",
             "¿Cuál es el nombre del personaje principal en la serie de juegos 'Assassin's Creed'?",
             "¿Cuál es el nombre del personaje principal en la serie de juegos 'Final Fantasy'?",
-            "¿Cuál es el nombre del personaje principal en la serie de juegos 'Metal Gear Solid'?"
+            "¿Cuál es el nombre del personaje principal en la serie de juegos 'Metal Gear Solid'?",
+            "¿Cuál es el país más poblado del mundo?"
             ]
         respuestas = [
             ["la antartida", "antartida"],
@@ -169,13 +170,14 @@ class Game:
             "nilo",
             "gabriel garcia marquez",
             "rusia",
-            "vincent van gogh",
+            ["vincent van gogh","van gogh"],
             "pacifico",
             "1985",
             "link",
             "desmond miles",
             "cloud strife",
-            "solid snake"
+            "solid snake",
+            "china"
             ]
         
         while True:
