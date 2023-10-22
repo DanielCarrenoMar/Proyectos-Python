@@ -3,6 +3,7 @@ from typing import Any
 from colorama import *
 import os
 from pynput import keyboard
+import asyncio
 
 #VARIABLES GLOBALES
 colores = [Fore.BLACK+Back.BLACK,Fore.RED+Back.RED,Fore.BLUE+Back.BLUE, Fore.MAGENTA+Back.MAGENTA, Fore.GREEN+Back.GREEN, Fore.YELLOW+Back.YELLOW, Fore.LIGHTRED_EX+Back.LIGHTRED_EX, Fore.LIGHTBLUE_EX+Back.LIGHTBLUE_EX] #PALETA DE COLORES
@@ -83,6 +84,12 @@ class Pantalla:
         for y in range(self.dimY):
             for x in range(self.dimX):
                 self.pantalla[y][x] = 0
+
+    def VerificarRotacion(self, x, y):
+        return (y <= self.juegoY+self.juegoDimY-1 
+                and x <= self.juegoX+self.juegoDimX-1
+                and self.memoria[y][x] == 0)
+
 
 #OBJETOS 
 map_piezas = [
@@ -169,25 +176,18 @@ class Pieza:
             self.x -= 1
 
     def rotar(self):
-        """rotacionfut = self.rotacion
-        if self.rotacion < 3:
-            rotacionfut = self.rotacion + 1
-        else:
-            rotacionfut = 0
-
-        for mascara in range(4):
-            pantalla_madre[self.y + map_piezas[self.pieza][self.rotacion][mascara][1]][self.x + map_piezas[self.pieza][self.rotacion][dibujo][0] ] = self.color
-            if map_piezas[self.pieza][rotacionfut][mascara][0] >= self.mascaraX:
-                mascaraXfut = map_piezas[self.pieza][rotacionfut][mascara][0]+1
-            if map_piezas[self.pieza][rotacionfut][mascara][1] >= self.mascaraY:
-                mascaraYfut = map_piezas[self.pieza][rotacionfut][mascara][1]+1
+        rotacionfut = (self.rotacion + 1) % 4
+        rotar = [False,False,False,False]
         
-        for x in range(mascaraXfut):
-            for y in range(mascaraYfut):
-                pass"""
+        for dibujo in range(4):
+            x = self.x + map_piezas[self.pieza][rotacionfut][dibujo][0]
+            y = self.y + map_piezas[self.pieza][rotacionfut][dibujo][1]
 
-        self.rotacion += 1
-        self.rotacion = self.rotacion % 4
+            rotar[dibujo] = self.game.VerificarRotacion(x, y)
+        if rotar == [True,True,True,True]:
+            self.rotacion += 1
+            self.rotacion = self.rotacion % 4
+        
  
     def dibujar(self):
         self.mascaraX = 0
