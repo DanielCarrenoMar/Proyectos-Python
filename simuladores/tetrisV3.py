@@ -268,8 +268,6 @@ while True:
         os.system("cls")
         Game.MostarPantalla()
         #Game.MostarMemoria()
-        print(espacio)
-        print(coordenadas_mas_dere)
         Game.ClearPantalla()
         #time.sleep(0.1)
 
