@@ -12,7 +12,7 @@ def soltar_tecla(key):
     if key == Key.esc:
         return False
     if key == Key.space:
-        teclado.press('a')
+        teclado.press(' ')
 
 
 with Listener(on_press = presionar_tecla, on_release = soltar_tecla) as listener:
