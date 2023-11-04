@@ -3,7 +3,6 @@ from typing import Any
 from colorama import *
 import os
 from pynput import keyboard
-import asyncio
 
 #VARIABLES GLOBALES
 colores = [Fore.BLACK+Back.BLACK,Fore.RED+Back.RED,Fore.BLUE+Back.BLUE, Fore.MAGENTA+Back.MAGENTA, Fore.GREEN+Back.GREEN, Fore.YELLOW+Back.YELLOW, Fore.LIGHTRED_EX+Back.LIGHTRED_EX, Fore.LIGHTBLUE_EX+Back.LIGHTBLUE_EX] #PALETA DE COLORES
@@ -74,6 +73,11 @@ class Pantalla:
         for i in range(self.juegoDimY ):
             if Game._IslineFull(i) == True:
                 Game._DelLine(i)
+    def ArribaDe(self, linea):
+        y = 24-linea
+        for lin in range( self.juegoX,  self.juegoX+ self.juegoDimX):
+            if self.memoria[y][lin] != 0:
+                return (True)
 
     def SetMemoria(self):
         for y in range(self.dimY):
@@ -237,6 +241,7 @@ while True:
         #Comprobar linea
         Game.VerificarLineas()
         
+        
         #Sobreescribir
         Game.SetMemoria()
 
@@ -270,4 +275,8 @@ while True:
         #Game.MostarMemoria()
         Game.ClearPantalla()
         #time.sleep(0.1)
+    if Game.ArribaDe(15):
+        break
 
+print("GAME OVER")
+input("Presione enter para salir")
