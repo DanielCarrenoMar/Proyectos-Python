@@ -2,47 +2,54 @@ from pynput.mouse import Button, Controller
 from pynput import mouse
 from time import sleep
 
-#mouse = Controller()
-espera = 0.8
+espera = 1
 clicks = []
 
-def on_move(x, y):
-    print('Pointer moved to {0}'.format(
-        (x, y)))
-
 def on_click(x, y, button, pressed):
-    clicks.append(mouse.position)
-    print(clicks)
-    if not pressed:
-        # Stop listener
+    if Controller().position not in clicks and button == Button.left:
+        clicks.append(Controller().position)
+        print(clicks)
+
+    if button == Button.middle:
         return False
 
-def on_scroll(x, y, dx, dy):
-    print('Scrolled {0} at {1}'.format(
-        'down' if dy < 0 else 'up',
-        (x, y)))
+def wach():    
+    with mouse.Listener(on_click=on_click) as listener:
+        listener.join()
+    nombre = input("Guardar como: ")
+    open("clicks.txt", "w").write(nombre + ": " + str(clicks) + "\n")
 
-# Collect events until released
-with mouse.Listener(on_click=on_click) as listener:
-    listener.join()
-
-
-#ciclo = int(input("ciclos de click: "))
-
-
+def execute():
+    clicks = open("clicks.txt", "r").read()
+    clicks = clicks[0:clicks.find(":")], clicks[clicks.find(":")+4:-2].replace("(", "").replace(")", "").replace(" ", "").split(",")
+    print(clicks)
+    """"
+    for x,y in clicks:
+        click(x, y, espera)
+    """
 
 def click(x,y,espe=2):
-    mouse.position = (x, y)
+    Controller().position = (x, y)
     sleep(espe)
-    mouse.press(Button.left)
-    mouse.release(Button.left)
+    Controller().press(Button.left)
+    Controller().release(Button.left)
 
-"""for i in range(ciclo):
-    sleep(espera)
-    mouse.scroll(0, -2)
-    click(895, 651, espera)
-    click(481, 306, espera)
-    click(479, 337, espera)
-    click(493, 390, espera)
-    click(573, 207, espera)
-"""
+def time(time=3):
+    for i in range(time):
+        sleep(1)
+        print(F"Second {i+1}")
+
+
+print("1. Save")
+print("2. Execute")
+print("3. Exit")
+chose = int(input("Choose: "))
+if chose == 1:
+    wach()
+elif chose == 2:
+    execute()
+elif chose == 3:
+    exit()
+
+
+
