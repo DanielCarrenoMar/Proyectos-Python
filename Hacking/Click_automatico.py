@@ -44,7 +44,10 @@ def time(time=3):
 wach()
 execute()
 
+
 """
+MENU
+
 print("1. Guardar clicks")
 print("2. Ejecutar clicks")
 print("3. Salir del programa")
