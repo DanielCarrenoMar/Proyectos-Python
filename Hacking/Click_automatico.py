@@ -12,21 +12,23 @@ def on_click(x, y, button, pressed):
 
     if button == Button.middle:
         return False
+    
+def on_scroll(x, y, button, pressed):
+    print("a")
 
-def wach():    
-    with mouse.Listener(on_click=on_click) as listener:
+def wach():
+    print("Grabando clicks PULSE CLICK CENTRAL PARA TERMINAR")
+    with mouse.Listener(on_click=on_click, on_scroll=on_scroll) as listener:
         listener.join()
-    nombre = input("Guardar como: ")
-    open("clicks.txt", "w").write(nombre + ": " + str(clicks) + "\n")
+    print("Guardado")
 
 def execute():
-    clicks = open("clicks.txt", "r").read()
-    clicks = clicks[0:clicks.find(":")], clicks[clicks.find(":")+4:-2].replace("(", "").replace(")", "").replace(" ", "").split(",")
-    print(clicks)
-    """"
-    for x,y in clicks:
-        click(x, y, espera)
-    """
+    repetir = int(input("Repetir cuantas veces: "))
+    time(3)
+
+    for i in range(repetir):
+        for x,y in clicks:
+            click(x, y, espera)
 
 def click(x,y,espe=2):
     Controller().position = (x, y)
@@ -39,10 +41,13 @@ def time(time=3):
         sleep(1)
         print(F"Second {i+1}")
 
+wach()
+execute()
 
-print("1. Save")
-print("2. Execute")
-print("3. Exit")
+"""
+print("1. Guardar clicks")
+print("2. Ejecutar clicks")
+print("3. Salir del programa")
 chose = int(input("Choose: "))
 if chose == 1:
     wach()
@@ -50,6 +55,6 @@ elif chose == 2:
     execute()
 elif chose == 3:
     exit()
-
+"""
 
 
