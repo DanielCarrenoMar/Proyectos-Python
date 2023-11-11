@@ -6,15 +6,16 @@ espera = 1
 clicks = []
 
 def on_click(x, y, button, pressed):
-    if Controller().position not in clicks and button == Button.left:
-        clicks.append(Controller().position)
+    if pressed == True and button == Button.left:
+        clicks.append(["click", x, y])
         print(clicks)
 
     if button == Button.middle:
         return False
     
-def on_scroll(x, y, button, pressed):
-    print("a")
+def on_scroll(x, y, dx, dy):
+    clicks.append(["scroll",dx ,dy])
+    print(clicks)
 
 def wach():
     print("Grabando clicks PULSE CLICK CENTRAL PARA TERMINAR")
@@ -22,13 +23,10 @@ def wach():
         listener.join()
     print("Guardado")
 
-def execute():
-    repetir = int(input("Repetir cuantas veces: "))
-    time(3)
-
-    for i in range(repetir):
-        for x,y in clicks:
-            click(x, y, espera)
+def time(time=3):
+    for i in range(time):
+        sleep(1)
+        print(F"Second {i+1}")
 
 def click(x,y,espe=2):
     Controller().position = (x, y)
@@ -36,10 +34,21 @@ def click(x,y,espe=2):
     Controller().press(Button.left)
     Controller().release(Button.left)
 
-def time(time=3):
-    for i in range(time):
-        sleep(1)
-        print(F"Second {i+1}")
+def scroll(dx,dy,espe=2):
+     Controller().scroll(dx,dy)
+     sleep(espe)
+
+def execute():
+    repetir = int(input("Repetir cuantas veces: "))
+    time(3)
+
+    for i in range(repetir):
+        for name,x,y in clicks:
+            if name == "click":
+                click(x, y, espera)
+            elif name == "scroll":
+               scroll(x, y, espera)
+
 
 wach()
 execute()
