@@ -14,8 +14,19 @@ def on_click(x, y, button, pressed):
         return False
     
 def on_scroll(x, y, dx, dy):
-    clicks.append(["scroll",dx ,dy])
-    print(clicks)
+    
+    if len(clicks) == 0 or clicks[-1][0] != "scroll":
+        clicks.append(["scroll",dx ,dy])
+        print(clicks)
+        return
+
+    if dx * clicks[-1][1] >= 0 and dy * clicks[-1][2] >= 0:
+        clicks[-1][1] += dx ; clicks[-1][2] += dy
+        print(clicks)
+        return
+    else:
+        clicks.append(["scroll",dx ,dy])
+        print(clicks)
 
 def wach():
     print("Grabando clicks PULSE CLICK CENTRAL PARA TERMINAR")
@@ -35,8 +46,9 @@ def click(x,y,espe=2):
     Controller().release(Button.left)
 
 def scroll(dx,dy,espe=2):
-     Controller().scroll(dx,dy)
-     sleep(espe)
+    
+    Controller().scroll(dx,dy)
+    sleep(espe)
 
 def execute():
     repetir = int(input("Repetir cuantas veces: "))
@@ -49,7 +61,7 @@ def execute():
             elif name == "scroll":
                scroll(x, y, espera)
 
-
+time(3)
 wach()
 execute()
 
