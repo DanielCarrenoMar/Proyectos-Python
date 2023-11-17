@@ -20,7 +20,7 @@ from colorama import Fore, Back, Style
  *   ...
  """
 
-aciertos = 0
+aciertos = 1
 numA = 1
 numB = 1
 pierde = False
@@ -44,6 +44,7 @@ def operacion_aleatoria(num1, num2):
         print(F"· {num1} x {num2} ·")
         return num1 * num2
     elif i >= 75 and i <= 100:
+        if num2 == 0: num2 = 1
         print(F"· {num1} / {num2} ·")
         return num1 / num2
     
@@ -66,8 +67,8 @@ threading_emails.start()
 while True:
     num1 = numero_longitud(numA)
     num2 = numero_longitud(numB)
-    resultado =  operacion_aleatoria(num1,num2)
-    
+    resultado =  round(operacion_aleatoria(num1,num2))
+
     if float(input("Ingrese resultado: ")) != resultado:
         system("cls")
         seg = 0
@@ -75,5 +76,13 @@ while True:
 
     seg = 5
     aciertos += 1
+
+    if aciertos > 5:
+        if numA <= numB:
+            numA += 1
+        else:
+            numB += 1
+        aciertos = 1
+
     system("cls")
     sleep(1)
