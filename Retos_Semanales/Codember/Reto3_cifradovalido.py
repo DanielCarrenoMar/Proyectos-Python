@@ -14,5 +14,4 @@ for clave in claves:
 
 print("Validas:",validas)
 print("Invalidas:", len(invalidas))
-for i,j in enumerate(invalidas):
-    if i+1 == 13: print(i+1,j)
+print(invalidas[int(input("Elija una posicion de las invalidas: "))])
