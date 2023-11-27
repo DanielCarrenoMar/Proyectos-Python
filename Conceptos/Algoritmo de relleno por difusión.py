@@ -40,11 +40,11 @@ def rellenado(tablero,relleno,x,y):
             sleep(0.2)
         for i in range(-1,2):
             for j in range(-1,2):
-                if abs(i) != abs(j) and 0 <= x+i < len(tablero[0])-1 and 0 <= y+j < len(tablero)-1:
+                if abs(i) != abs(j) and 0 <= x+i < len(tablero[0]) and 0 <= y+j < len(tablero):
                     if tablero[y+j][x+i] == "0":
                         if (x+i,y+j) not in coord:
                             print(x+i,y+j)
                             coord.append((x+i,y+j))
                     
 
-rellenado(tablero,"!",0,0)
+rellenado(tablero,"!",9,9)
