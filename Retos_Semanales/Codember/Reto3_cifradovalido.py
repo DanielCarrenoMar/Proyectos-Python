@@ -14,4 +14,4 @@ for clave in claves:
 
 print("Validas:",validas)
 print("Invalidas:", len(invalidas))
-print(invalidas[int(input("Elija una posicion de las invalidas: "))])
+print(invalidas[int(input("Elija una posicion de las invalidas: ")-1)])
