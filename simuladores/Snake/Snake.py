@@ -5,7 +5,7 @@ import random as rd
 class Pantalla():
     def __init__(self, nombre) -> None:
         pg.init()
-        
+
         self.pantalla = pg.display.set_mode((v.panta_ancho, v.panta_alto))
         pg.display.set_caption(nombre)
 
@@ -14,11 +14,27 @@ class Pantalla():
 
         self.cuadricula = (v.panta_ancho // v.cuadros, v.panta_alto // v.cuadros)
 
+        self.CODE = [pg.K_UP, pg.K_UP, pg.K_DOWN, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_LEFT, pg.K_RIGHT, pg.K_b, pg.K_a]
+        self.code = []
+        self.index = 0
+
     def input(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
                 quit()
+
+            if event.type == pg.KEYDOWN:
+                if event.key == self.CODE[self.index]:
+                    self.code.append(event.key)
+                    if self.index < 9: self.index += 1
+                    
+                    if self.code == self.CODE:
+                        self.index = 0
+                        self._conami()
+                else:
+                    self.code = []
+                    self.index = 0
 
     def dibujar(self):
         self.pantalla.fill(v.clr_fondo)
@@ -45,6 +61,8 @@ class Snake(Pantalla):
         self.movido = False
 
         self.comida = [self.dosrand() for _ in range(v.manzanas)]
+
+        self.codigocona = False
 
     def _gameover(self):
         self.move = [0,0]
@@ -126,10 +144,15 @@ class Snake(Pantalla):
         self.pantalla.blit(pg.font.SysFont("Arial", 20).render(f"Puntuacion: {self.puntuacion}", True, v.clr_puntuacion), (0,0))
         self.pantalla.blit(pg.font.SysFont("Arial", 20).render(f"Récord: {self.record}", True, v.clr_puntuacion), (v.panta_ancho//2,0))
 
+    def _conami(self):
+        self.puntuacion += 1000
+
     def _bucle(self):
         self._comida()
         self._serpierte()
         self._puntuacion()
+
+        if self.codigocona: self._serpierte2()
 
 juego = Snake()
 
