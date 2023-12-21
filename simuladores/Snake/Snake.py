@@ -87,16 +87,16 @@ class Snake(Pantalla):
         
         tecla = pg.key.get_pressed()
         if self.movido == False:
-            if tecla[pg.K_UP] or tecla[pg.K_w] and self.move[1] == 0:
+            if (tecla[pg.K_UP] or tecla[pg.K_w] )and self.move[1] != 1:
                 self.move = [0,-1]
                 self.movido = True
-            elif tecla[pg.K_DOWN] or tecla[pg.K_s] and self.move[1] == 0:
+            elif (tecla[pg.K_DOWN] or tecla[pg.K_s]) and self.move[1] != -1:
                 self.move = [0,1]
                 self.movido = True
-            elif tecla[pg.K_LEFT] or tecla[pg.K_a] and self.move[0] == 0:
+            elif (tecla[pg.K_LEFT] or tecla[pg.K_a]) and self.move[0] != 1:
                 self.move = [-1,0]
                 self.movido = True
-            elif tecla[pg.K_RIGHT] or tecla[pg.K_d] and self.move[0] == 0:
+            elif (tecla[pg.K_RIGHT] or tecla[pg.K_d]) and self.move[0] != -1:
                 self.move = [1,0]
                 self.movido = True
             
