@@ -47,7 +47,7 @@ class Pantalla():
 
 class Snake(Pantalla):
     def __init__(self) -> None:
-        super().__init__("Snake")
+        super().__init__(v.titulo)
 
         self.dosrand = lambda: [rd.randrange(0, v.cuadros), rd.randrange(0, v.cuadros)] 
 
@@ -114,7 +114,7 @@ class Snake(Pantalla):
         else:
             self.cuerpo.append(self.cabeza.copy())
 
-        if self.cabeza[0] < 0 or self.cabeza[0] > v.cuadros or self.cabeza[1] < 0 or self.cabeza[1] > v.cuadros:
+        if self.cabeza[0] < 0 or self.cabeza[0] >= v.cuadros or self.cabeza[1] < 0 or self.cabeza[1] >= v.cuadros:
             self._gameover()
             
         for x,y in self.cuerpo[:-1]:
@@ -153,6 +153,35 @@ class Snake(Pantalla):
         self._puntuacion()
 
         if self.codigocona: self._serpierte2()
+
+class Intro(Pantalla):
+    def __init__(self):
+        super().__init__(v.titulo)
+
+        self.alpha = 0
+        self.imgLogo = pg.transform.scale(pg.image.load("logo.png").convert_alpha(), (v.panta_ancho,v.panta_alto))
+
+    def _bucle(self):
+        self.pantalla.fill(v.clr_fondo)
+
+        imgLogo_copy = self.imgLogo.copy()
+        imgLogo_copy.set_alpha(self.alpha)
+        self.pantalla.blit(imgLogo_copy, (0,-40))
+        self.alpha += 3
+
+        if any(pg.key.get_pressed()): return "Comenzar" # Si se pulsa cualquier tecla comienza el juego
+
+        if self.alpha >= 450: return "Comenzar"
+
+        pg.display.flip()
+        self.reloj.tick(60)
+
+intro = Intro()
+
+# Bucle principal
+while True:
+    intro.input()
+    if intro._bucle() == "Comenzar": break
 
 juego = Snake()
 

@@ -1,3 +1,5 @@
+titulo = "Snake"
+
 # Colores
 clr_fondo = "#000000"
 clr_cabeza = "#01DF3C"
