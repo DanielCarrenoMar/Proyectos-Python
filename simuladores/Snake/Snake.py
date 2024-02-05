@@ -63,7 +63,7 @@ class Snake(Pantalla):
         self.comida = [self.dosrand() for _ in range(v.manzanas)]
 
         self.codigocona = False
-
+        
     def _gameover(self):
         self.move = [0,0]
         self.puntuacion = 0
@@ -146,6 +146,7 @@ class Snake(Pantalla):
 
     def _conami(self):
         self.puntuacion += 1000
+        v.clr_fondo = rd.choice([v.amarillo, v.naranja, v.rosado, v.morado, v.celeste, v.gris, v.azul_oscuro, v.azul, v.colmena1, v.colmena2, v.colmena3])
 
     def _bucle(self):
         self._comida()
@@ -171,19 +172,18 @@ class Intro(Pantalla):
 
         if any(pg.key.get_pressed()): return "Comenzar" # Si se pulsa cualquier tecla comienza el juego
 
-        if self.alpha >= 450: return "Comenzar"
+        if self.alpha >= 250: return "Comenzar"
 
         pg.display.flip()
         self.reloj.tick(60)
 
 intro = Intro()
+juego = Snake()
 
 # Bucle principal
 while True:
     intro.input()
     if intro._bucle() == "Comenzar": break
-
-juego = Snake()
 
 while True:
     juego.input()
