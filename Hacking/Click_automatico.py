@@ -39,7 +39,7 @@ def on_scroll(x, y, dx, dy):
 def time(time=3):
     for i in range(time):
         sleep(1)
-        print(F"Second {i+1}")
+        print(F"Segundo {i+1}")
 
 def click(x,y,espe=2):
     Controller().position = (x, y)
@@ -72,12 +72,23 @@ def wach():
 
 def execute():
     system("cls")
-    save = eval(open("Save.txt","r").read())
-    print(save.keys())
+    save: dict = eval(open("Save.txt","r").read())
+
+    saveMostrar = str(save.keys())[12:str(save.keys()).find("]")-1].replace("'","").replace(" ","").split(",")
+
+    for i in range(len(saveMostrar)):
+        print(F"{i+1} ", saveMostrar[i])
+
     while True:
-        choise = input("Elegir guardado: ")
         try:
-            clicks = save[choise]
+            choise = int(input("Elegir guardado: "))
+            break
+        except ValueError:
+            print("Ingrese un numero valido")
+
+    while True:
+        try:
+            clicks = save[saveMostrar[choise-1]]
             break
         except:
             print("Error al cargar")
@@ -87,6 +98,9 @@ def execute():
     system("cls")
 
     time(3)
+
+    system("cls")
+    print("Ejecutando clicks")
     for i in range(repetir):
         for name,x,y in clicks:
             if name == "click":
@@ -97,19 +111,33 @@ def execute():
 
 def delete():
     system("cls")
-    save = eval(open("Save.txt","r").read())
-    print(save.keys())
+
+    save: dict = eval(open("Save.txt","r").read())
+
+    saveMostrar = str(save.keys())[12:str(save.keys()).find("]")-1].replace("'","").replace(" ","").split(",")
+
+    for i in range(len(saveMostrar)):
+        print(F"{i+1} ", saveMostrar[i])
+
     while True:
-        choise = input("Elegir guardado: ")
         try:
-            save.pop(choise)
+            choise = int(input("Elegir guardado: "))
+            break
+        except ValueError:
+            print("Ingrese un numero valido")
+
+    while True:
+        try:
+            save.pop(saveMostrar[choise-1])
             open("Save.txt","w").write(str(save))
             break
         except:
             print("Error al eliminar")
+
     system("cls")
 #MENU
 while True:
+    print("CLICKS AUTOMATICOS".center(50,"-"))
     print("1. Guardar clicks")
     print("2. Borrar clicks guardados")
     print("3. Ejecutar clicks")
@@ -117,6 +145,7 @@ while True:
     chose = int(input("Choose: "))
     match chose:
         case 1:
+            system("cls")
             time(3)
             wach()
         case 2:
