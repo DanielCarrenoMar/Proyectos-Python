@@ -1,6 +1,10 @@
 import pygame as pg
 import Variables as v
 import random as rd
+import socket as sk
+import threading as th
+from time import sleep
+from server import HOST, PORT
 
 class Pantalla():
     def __init__(self, nombre) -> None:
@@ -18,9 +22,12 @@ class Pantalla():
         self.code = []
         self.index = 0
 
+        self.activo = True
+
     def input(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
+                self.activo = False
                 pg.quit()
                 quit()
 
@@ -43,7 +50,7 @@ class Pantalla():
         self._bucle()
 
         pg.display.flip()
-        self.reloj.tick(60)
+        self.reloj.tick(30)
 
 class Snake(Pantalla):
     def __init__(self) -> None:
@@ -61,8 +68,6 @@ class Snake(Pantalla):
         self.movido = False
 
         self.comida = [self.dosrand() for _ in range(v.manzanas)]
-
-        self.codigocona = False
         
     def _gameover(self):
         self.move = [0,0]
@@ -142,7 +147,8 @@ class Snake(Pantalla):
             self.record = self.puntuacion
 
         self.pantalla.blit(pg.font.SysFont("Arial", 20).render(f"Puntuacion: {self.puntuacion}", True, v.clr_puntuacion), (0,0))
-        self.pantalla.blit(pg.font.SysFont("Arial", 20).render(f"Récord: {self.record}", True, v.clr_puntuacion), (v.panta_ancho//2,0))
+        self.pantalla.blit(pg.font.SysFont("Arial", 20).render(f"Récord: {self.record}", True, v.clr_puntuacion), (v.panta_ancho//2.5,0))
+        self.pantalla.blit(pg.font.SysFont("Arial", 20).render(f"Nombre: {username}", True, v.clr_puntuacion), (v.panta_ancho//1.4,0))
 
     def _conami(self):
         self.puntuacion += 1000
@@ -152,8 +158,6 @@ class Snake(Pantalla):
         self._comida()
         self._serpierte()
         self._puntuacion()
-
-        if self.codigocona: self._serpierte2()
 
 class Intro(Pantalla):
     def __init__(self):
@@ -177,10 +181,44 @@ class Intro(Pantalla):
         pg.display.flip()
         self.reloj.tick(60)
 
+username = "Desconectado"
+
 intro = Intro()
 juego = Snake()
 
-# Bucle principal
+def receiveMessages():
+    global username
+    while juego.activo and intro.activo:
+        try:
+            message = client.recv(1024).decode("utf-8")
+            if message.startswith("/U "):
+                username = message[3:]
+                client.send(username.encode("utf-8"))
+        except:
+            if client.fileno() != -1: client.close()
+            break
+
+def writeMessages():
+    while juego.activo and intro.activo:
+        message = f"{username}:{juego.record}"
+        client.send(message.encode("utf-8"))
+        sleep(3)
+
+    client.send("/exit".encode("utf-8"))
+    client.close()
+
+try:
+    client = sk.socket(sk.AF_INET, sk.SOCK_STREAM)
+    client.connect((HOST, PORT))
+
+    receiveThread = th.Thread(target=receiveMessages)
+    receiveThread.start()
+
+    writeThread = th.Thread(target=writeMessages)
+    writeThread.start()
+except:
+    print("Jugando sin conexion")
+
 while True:
     intro.input()
     if intro._bucle() == "Comenzar": break
