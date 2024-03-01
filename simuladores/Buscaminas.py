@@ -123,7 +123,9 @@ def juego ():
                 pantalla[y-1, x-1] = 10
             print(Style.RESET_ALL, pantalla)
 # Crear el campo de minas
-XY = [input("Ingrese dos numeros separados por comas: ").split(",")]
+XY = [0,0]
+XY[0] = int(input("Ingrese el tamaño del campo de minas. X: "))
+XY[1] = int(input("Ingrese el tamaño del campo de minas. Y: "))
 campo_minas = crear_campo(XY, 6)
 pantalla =  zeros(XY)
 
