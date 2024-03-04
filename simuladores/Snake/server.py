@@ -34,9 +34,8 @@ def handleMessage(client: sk.socket):
             client.close()
             break
 
-        divi = message.split(":")
-        usuario = divi[0]
-        score = divi[1]
+        usuario = message[:5]
+        score = message[5:]
 
         scores[usuario] = score
 

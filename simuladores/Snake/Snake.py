@@ -200,7 +200,7 @@ def receiveMessages():
 
 def writeMessages():
     while juego.activo and intro.activo:
-        message = f"{username}:{juego.record}"
+        message = f"{username} {juego.record}"
         client.send(message.encode("utf-8"))
         sleep(3)
 
