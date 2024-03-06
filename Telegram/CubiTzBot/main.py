@@ -1,9 +1,9 @@
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
-from keys import CubiTz, Grupos
+from keys import token
 import asyncio
 
-token = CubiTz.get("token")
+token = token
 
 animacion = [
     """
