@@ -3,8 +3,8 @@ from pynput import mouse
 from time import sleep
 from os import system
 
-#Segundos de espera entre click
-espera = 1
+#Segundos de Espera entre click
+Espera = 1
 
 clicks = []
 try:
@@ -39,7 +39,7 @@ def on_scroll(x, y, dx, dy):
 def time(time=3):
     for i in range(time):
         sleep(1)
-        print(F"Second {i+1}")
+        print(F"Segundo {i+1}")
 
 def click(x,y,espe=2):
     Controller().position = (x, y)
@@ -65,58 +65,94 @@ def wach():
 
     system("cls")
     try:
-        open("Save.txt","w").write(str(save))
+        with open("Save.txt","w") as file:
+            file.write(str(save))
         print("Guardado")
     except:
         print("Error al guardar")
 
 def execute():
     system("cls")
-    save = eval(open("Save.txt","r").read())
-    print(save.keys())
+    save: dict = eval(open("Save.txt","r").read())
+
+    saveMostrar = str(save.keys())[12:str(save.keys()).find("]")-1].replace("'","").replace(" ","").split(",")
+
+    for i in range(len(saveMostrar)):
+        print(F"{i+1} ", saveMostrar[i])
+
     while True:
-        choise = input("Elegir guardado: ")
         try:
-            clicks = save[choise]
+            choise = int(input("Elegir guardado: "))
+            break
+        except ValueError:
+            print("Ingrese un numero valido")
+
+    while True:
+        try:
+            clicks = save[saveMostrar[choise-1]]
             break
         except:
             print("Error al cargar")
 
     system("cls")
-    repetir = int(input("Repetir cuantas veces: "))
+    while True:
+        try:
+            repetir = int(input("Repetir cuantas veces: "))
+            break
+        except ValueError:
+            print("Ingrese un numero valido")
     system("cls")
 
     time(3)
+
+    system("cls")
+    print("Ejecutando clicks")
     for i in range(repetir):
         for name,x,y in clicks:
             if name == "click":
-                click(x, y, espera)
+                click(x, y, Espera)
             elif name == "scroll":
-               scroll(x, y, espera)
+               scroll(x, y, Espera)
     system("cls")
 
 def delete():
     system("cls")
-    save = eval(open("Save.txt","r").read())
-    print(save.keys())
+
+    save: dict = eval(open("Save.txt","r").read())
+
+    saveMostrar = str(save.keys())[12:str(save.keys()).find("]")-1].replace("'","").replace(" ","").split(",")
+
+    for i in range(len(saveMostrar)):
+        print(F"{i+1} ", saveMostrar[i])
+
     while True:
-        choise = input("Elegir guardado: ")
         try:
-            save.pop(choise)
-            open("Save.txt","w").write(str(save))
+            choise = int(input("Elegir guardado: "))
+            break
+        except ValueError:
+            print("Ingrese un numero valido")
+
+    while True:
+        try:
+            save.pop(saveMostrar[choise-1])
+            with open("Save.txt","w") as file:
+                file.write(str(save))
             break
         except:
             print("Error al eliminar")
+
     system("cls")
 #MENU
 while True:
+    print("CLICKS AUTOMATICOS".center(50,"-"))
     print("1. Guardar clicks")
     print("2. Borrar clicks guardados")
     print("3. Ejecutar clicks")
     print("4. Salir del programa")
-    chose = int(input("Choose: "))
+    chose = int(input("Elige: "))
     match chose:
         case 1:
+            system("cls")
             time(3)
             wach()
         case 2:
