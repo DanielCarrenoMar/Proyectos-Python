@@ -1,12 +1,11 @@
 import pygame as pg
-from random import randrange
+from random import randrange, choice
 pg.init()
-
 H = pg.display.Info().current_h
 W = pg.display.Info().current_w
 CLOCK = pg.time.Clock()
 
-pg.display.set_mode((W-30,H-60), pg.RESIZABLE) 
+pg.display.set_mode((W//2,H//2), pg.RESIZABLE) 
 pg.display.set_caption("Snake")
 
 configColors = {
@@ -20,8 +19,11 @@ configColors = {
     "point": "#FFFFFF",
 }
 configNumbers = {
-    "dimention": 20,
+    "dimention": 10,
     "numManzanas": 1,
+    "longManzana": 1,
+    "speed": 200,
+    "multiSnake": False,
 }
 
 class Intro():
@@ -55,39 +57,46 @@ class Start():
 class Game():
     def __init__(self):
         self.screen = pg.display.get_surface()
-        self.ramd2 = lambda: [randrange(0, configNumbers["dimention"]), randrange(0, configNumbers["dimention"])]
-
-        self.snake1 = Snake(1,2)
-        self.snake2 = Snake(3,4)
-
-        self.point = 0
         self.record = 0
 
-        self.comida = [self.ramd2() for _ in range(configNumbers["numManzanas"])]
+        self.foods = []
+
+        self.snakes = Snake(1,2,self.foods), Snake(3,4,self.foods)
+        self.time = 0
 
         self.conami = False
 
-    def _manzana(self):
-        pass
-
     def bucle(self):
+        dimention = configNumbers["dimention"]
         self.screen.fill(configColors["marco"])
-        self.matriz = [[0 for _ in range(configNumbers["dimention"])] for _ in range(configNumbers["dimention"])]
+        self.matriz = [[0 for _ in range(dimention)] for _ in range(dimention)]
 
-        if not multiSnake: 
-            self.snake1.bucle(self.matriz, configNumbers["dimention"], 500, [[pg.K_UP,pg.K_w],[pg.K_DOWN, pg.K_s],[pg.K_LEFT, pg.K_a],[pg.K_RIGHT, pg.K_d]])
+        for x,y in self.foods:
+            self.matriz[y][x] = 5
+
+        if not configNumbers["multiSnake"]: 
+            self.snakes[0].bucle(self.matriz, [[pg.K_UP,pg.K_w],[pg.K_DOWN, pg.K_s],[pg.K_LEFT, pg.K_a],[pg.K_RIGHT, pg.K_d]])
         else:
             if not self.conami and sound:
                 soundMultiSnake.play()
                 self.conami = True
-            self.snake1.bucle(self.matriz, configNumbers["dimention"], 500, [[pg.K_UP],[pg.K_DOWN],[pg.K_LEFT],[pg.K_RIGHT]])
-            self.snake2.bucle(self.matriz, configNumbers["dimention"], 500,  [[pg.K_w],[pg.K_s],[pg.K_a],[pg.K_d]])
+            self.snakes[0].bucle(self.matriz, [[pg.K_UP],[pg.K_DOWN],[pg.K_LEFT],[pg.K_RIGHT]])
+            self.snakes[1].bucle(self.matriz,  [[pg.K_w],[pg.K_s],[pg.K_a],[pg.K_d]])
 
+        if len(self.foods) < configNumbers["numManzanas"] and len(zeros := [[j, i] for i, row in enumerate(self.matriz) for j, val in enumerate(row) if val == 0]) > 1:
+                ram = choice(zeros)
+                self.foods.append(ram)
 
-        self.box:float = self.screen.get_size()[1] // configNumbers["dimention"]
-        for y in range(configNumbers["dimention"]):
-            for x in range(configNumbers["dimention"]):
-                draw = lambda color: pg.draw.rect(self.screen, color, ((x*self.box + (self.screen.get_size()[0] - configNumbers["dimention"]*self.box)//2), y*self.box, self.box, self.box))
+        realTime = pg.time.get_ticks()
+        if realTime - self.time > configNumbers["speed"]: 
+            self.time = realTime
+            self.snakes[0].tick()
+            if configNumbers["multiSnake"]: self.snakes[1].tick()
+
+        self.box = self.screen.get_size()[1] // dimention
+        for y in range(dimention):
+            for x in range(dimention):
+                draw = lambda color: pg.draw.rect(self.screen, color, ((x*self.box + (self.screen.get_size()[0] - dimention*self.box)//2), y*self.box, self.box, self.box))
                 if self.matriz[y][x] == 0:
                     draw(configColors["background"])
                 elif self.matriz[y][x] == 1:
@@ -101,57 +110,75 @@ class Game():
                 elif self.matriz[y][x] == 5:
                     draw(configColors["comida"])
 
+        for s in self.snakes:
+            if s.point > self.record:
+                self.record = s.point
+                if sound: soundRecord.play()
+            
+        borde1X = (self.screen.get_size()[0] - dimention*self.box)//2
+        borde2X = dimention*self.box +(self.screen.get_size()[0] - dimention*self.box)//2
+        tam =self.screen.get_size()[1]//20
+        if not configNumbers["multiSnake"]:
+            self.screen.blit(pg.font.SysFont("Arial", tam).render(f"Puntuacion: {self.snakes[0].point}", True, configColors["point"]), (borde1X,0))
+        else:
+            self.screen.blit(pg.font.SysFont("Arial", tam).render(f"Puntuacion: {self.snakes[0].point}", True, configColors["point"]), (borde1X,0))
+            self.screen.blit(pg.font.SysFont("Arial", tam).render(f"Puntuacion: {self.snakes[1].point}", True, configColors["point"]), (borde1X,tam))
+        self.screen.blit(pg.font.SysFont("Arial", tam).render(f"Récord: {self.record}", True, configColors["point"]), (borde2X- tam*6,0))
+
 class Snake():
-    def __init__(self, mathead:int, matbody:int):
+    def __init__(self, mathead:int, matbody:int, foods:list[int]):
         self.ramd2 = lambda: [randrange(0, configNumbers["dimention"]), randrange(0, configNumbers["dimention"])]
 
         self.mathead = mathead
         self.matbody = matbody
+        self.foods = foods
 
-        self.time = 0
+        self.point = 0 
+        self.time = 0 
         self.head = self.ramd2()
         self.body = [self.head.copy()]
         self.long = 1
-        self.move = [[0,0]]
+        self.move = [0,0]
         self.moved = False
 
     def gameover(self):
-        self.move = [[0,0]]
+        self.move = [0,0]
         self.point = 0
         self.long = 1
 
         self.head = self.ramd2()
         self.body = [self.head.copy()]
 
-        self.comida = [self.ramd2() for _ in range(configNumbers["numManzanas"])]
+    def bucle(self, matriz:list, controls:list):
+        self.ramd2 = lambda: [randrange(0, configNumbers["dimention"]), randrange(0, configNumbers["dimention"])]
+        self.matriz = matriz
+        self.numBox = len(matriz[0])
 
-    def bucle(self, matriz:list, numBox:int,wait:int, controls:list):
-        matriz[self.body[-1][1]][self.body[-1][0]] = self.mathead
         for x,y in self.body[:-1]:
             matriz[y][x] = self.matbody
+        matriz[self.body[-1][1]][self.body[-1][0]] = self.mathead
         
         key = pg.key.get_pressed()
-        if any(key[k] for k in controls[0]) and self.move[-1][1] != 1 and self.move[-1] != [0,-1]:
-            self.move.append([0,-1])
+        if any(key[k] for k in controls[0]) and self.move[1] != 1:
+            self.move = [0,-1]
             self.moved = True
-        elif any(key[k] for k in controls[1]) and self.move[-1][1] != -1 and self.move[-1] != [0,1]:
-            self.move.append([0,1])
+        elif any(key[k] for k in controls[1]) and self.move[1] != [0,-1]:
+            self.move = [0,1]
             self.moved = True
-        elif any(key[k] for k in controls[2]) and self.move[-1][0] != 1 and self.move[-1] != [-1,0]:
-            self.move.append([-1,0])
+        elif any(key[k] for k in controls[2]) and self.move[0] != 1:
+            self.move = [-1,0]
             self.moved = True
-        elif any(key[k] for k in controls[3]) and self.move[-1][0] != -1 and self.move[-1] != [1,0]:
-            self.move.append([1,0])
-            self.moved = True
-        if (len(self.move)) > 3:
-            self.move.pop(0)
+        elif any(key[k] for k in controls[3]) and self.move[0] != -1:
+            self.move = [1,0]
+            self.moved = True      
+    def tick(self):
+        self.head[0] += self.move[0]; self.head[1] += self.move[1]
 
-        realTime = pg.time.get_ticks()
-        if realTime - self.time < wait: return
-        self.time = realTime
-
-        if (len(self.move) > 1): self.head[0] += self.move[1][0] ; self.head[1] += self.move[1][1]; self.move.pop(0)
-        else: self.head[0] += self.move[0][0] ; self.head[1] += self.move[0][1]
+        for food in self.foods:
+            if self.head == food:
+                self.long += configNumbers["longManzana"]
+                self.foods.remove(food)
+                self.point += 10
 
         if len(self.body) >= self.long:
             self.body.pop(0)
@@ -159,17 +186,11 @@ class Snake():
         else:
             self.body.append(self.head.copy())
 
-        if self.head[0] < 0 or self.head[0] >= numBox or self.head[1] < 0 or self.head[1] >= numBox:
+        if self.head[0] < 0 or self.head[0] >= self.numBox or self.head[1] < 0 or self.head[1] >= self.numBox:
             self.gameover()
-            pass
 
-        for x,y in self.body[:-1]:
-            if x == self.head[0] and y == self.head[1]:
-                self.gameover()
-                pass
-    
-    def manzana(self):
-        pass
+        if self.matriz[self.head[1]][self.head[0]] not in [0, 5, self.mathead]:
+            self.gameover()
 
         
 class Pages():
@@ -189,12 +210,12 @@ class Pages():
         self.main = num
         self.main %= len(self.pages)
 
-multiSnake = False
 sound = True
 if pg.mixer.get_init() is None:
     sound = False
 else:
     soundMultiSnake = pg.mixer.Sound('./sounds/snakeMulti.mp3')
+    soundRecord = pg.mixer.Sound('./sounds/record.mp3')
 
 intro, start, game = Intro(), Start(), Game()
 pages = Pages([intro, start, game])
@@ -218,7 +239,7 @@ while True:
                 
                 if code == CODE:
                     index = 0
-                    multiSnake = True
+                    configNumbers["multiSnake"] = True
             else:
                 code = []
                 index = 0
