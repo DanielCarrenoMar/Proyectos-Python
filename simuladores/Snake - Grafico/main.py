@@ -16,7 +16,8 @@ configColors = {
     "head2": "#FFFFFF",
     "body2": "#1FF000",
     "comida": "#952121",
-    "point": "#FFFFFF",
+    "ui": "#FFFFFF",
+    "ui2": "#FFFFFF",
 }
 configNumbers = {
     "dimention": 10,
@@ -57,7 +58,6 @@ class Start():
 class Game():
     def __init__(self):
         self.screen = pg.display.get_surface()
-        self.record = 0
 
         self.foods = []
 
@@ -109,21 +109,18 @@ class Game():
                     draw(configColors["body2"])
                 elif self.matriz[y][x] == 5:
                     draw(configColors["comida"])
-
-        for s in self.snakes:
-            if s.point > self.record:
-                self.record = s.point
-                if sound: soundRecord.play()
             
         borde1X = (self.screen.get_size()[0] - dimention*self.box)//2
         borde2X = dimention*self.box +(self.screen.get_size()[0] - dimention*self.box)//2
         tam =self.screen.get_size()[1]//20
         if not configNumbers["multiSnake"]:
-            self.screen.blit(pg.font.SysFont("Arial", tam).render(f"Puntuacion: {self.snakes[0].point}", True, configColors["point"]), (borde1X,0))
+            self.screen.blit(pg.font.SysFont("Arial", tam).render(f"Puntuacion: {self.snakes[0].point}", True, configColors["ui"]), (borde1X,0))
+            self.screen.blit(pg.font.SysFont("Arial", tam).render(f"Récord: {self.snakes[0].record}", True, configColors["ui"]), (borde2X- tam*6,0))
         else:
-            self.screen.blit(pg.font.SysFont("Arial", tam).render(f"Puntuacion: {self.snakes[0].point}", True, configColors["point"]), (borde1X,0))
-            self.screen.blit(pg.font.SysFont("Arial", tam).render(f"Puntuacion: {self.snakes[1].point}", True, configColors["point"]), (borde1X,tam))
-        self.screen.blit(pg.font.SysFont("Arial", tam).render(f"Récord: {self.record}", True, configColors["point"]), (borde2X- tam*6,0))
+            self.screen.blit(pg.font.SysFont("Arial", tam).render(f"Puntuacion 1: {self.snakes[0].point}", True, configColors["ui"]), (borde1X,0))
+            self.screen.blit(pg.font.SysFont("Arial", tam).render(f"Puntuacion 2: {self.snakes[1].point}", True, configColors["ui2"]), (borde1X,tam))
+            self.screen.blit(pg.font.SysFont("Arial", tam).render(f"Récord 1: {self.snakes[0].record}", True, configColors["ui"]), (borde2X- tam*6,0))
+            self.screen.blit(pg.font.SysFont("Arial", tam).render(f"Récord 2: {self.snakes[1].record}", True, configColors["ui2"]), (borde2X- tam*6,tam))
 
 class Snake():
     def __init__(self, mathead:int, matbody:int, foods:list[int]):
@@ -134,6 +131,7 @@ class Snake():
         self.foods = foods
 
         self.point = 0 
+        self.record = 0
         self.time = 0 
         self.head = self.ramd2()
         self.body = [self.head.copy()]
@@ -150,6 +148,10 @@ class Snake():
         self.body = [self.head.copy()]
 
     def bucle(self, matriz:list, controls:list):
+        if self.point > self.record:
+                self.record = self.point
+                if sound: soundRecord.play()
+
         self.ramd2 = lambda: [randrange(0, configNumbers["dimention"]), randrange(0, configNumbers["dimention"])]
         self.matriz = matriz
         self.numBox = len(matriz[0])
@@ -162,7 +164,7 @@ class Snake():
         if any(key[k] for k in controls[0]) and self.move[1] != 1:
             self.move = [0,-1]
             self.moved = True
-        elif any(key[k] for k in controls[1]) and self.move[1] != [0,-1]:
+        elif any(key[k] for k in controls[1]) and self.move[1] != -1:
             self.move = [0,1]
             self.moved = True
         elif any(key[k] for k in controls[2]) and self.move[0] != 1:
@@ -179,6 +181,7 @@ class Snake():
                 self.long += configNumbers["longManzana"]
                 self.foods.remove(food)
                 self.point += 10
+                if sound: soundPoint.play()
 
         if len(self.body) >= self.long:
             self.body.pop(0)
@@ -191,8 +194,7 @@ class Snake():
 
         if self.matriz[self.head[1]][self.head[0]] not in [0, 5, self.mathead]:
             self.gameover()
-
-        
+     
 class Pages():
     def __init__(self, pages:list):
         self.main = 2
@@ -216,6 +218,7 @@ if pg.mixer.get_init() is None:
 else:
     soundMultiSnake = pg.mixer.Sound('./sounds/snakeMulti.mp3')
     soundRecord = pg.mixer.Sound('./sounds/record.mp3')
+    soundPoint = pg.mixer.Sound('./sounds/point.mp3')
 
 intro, start, game = Intro(), Start(), Game()
 pages = Pages([intro, start, game])
@@ -226,8 +229,8 @@ index = 0
 
 while True:
     for event in pg.event.get():
-        if event.type == pg.MOUSEBUTTONDOWN:
-            pg.display.set_caption("hola3")
+        if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
+            pages.goto(1)
         if event.type == pg.QUIT:
             pg.quit()
             quit()
