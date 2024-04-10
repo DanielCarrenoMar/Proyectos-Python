@@ -18,7 +18,6 @@ configColors = {
     "body2": "#1FF000",
     "food": "#952121",
     "ui": "#FFFFFF",
-    "ui2": "#FFFFFF",
 }
 configNumbers = {
     "dimention": 25,
@@ -51,42 +50,51 @@ class Intro():
 class Start():
     def __init__(self):
         self.screen = pg.display.get_surface()
+        self.multi = False
+        sound = pgm.sound.Sound()
+        sound.load_example_sounds()
+
         mytheme = pgm.Theme()
         mytheme.title_bar_style = pgm.widgets.MENUBAR_STYLE_SIMPLE
-        mytheme.widget_font_color = "#1F4C52"
-        mytheme.selection_color = "#132F33"
+        mytheme.widget_font_color = "#70888C"
+        mytheme.selection_color = "#6E2A48"
         mytheme.background_color = "#DAEBEE"
         mytheme.title_font_color = "#DAEBEE"
-        mytheme.title_background_color = "#255243"
-        mytheme.title_background_color = "#255243"
+        mytheme.title_background_color = "#6E2A48"
 
         screenW, screenH = self.screen.get_size()
         self.menuColors = pgm.pygame_menu.Menu('Colores', screenW, screenH,theme=mytheme, center_content=True)
+        self.menuColors.set_sound(sound, False)
         def changeColor(*args, **kwargs):
             configColors.update({kwargs["kwargs"]: args[0]})
-        self.menuColors.add.color_input('Marco: ', color_type='hex', onchange=changeColor, kwargs="marco", default=configColors["marco"])
-        self.menuColors.add.color_input('Texto: ', color_type='hex', onchange=changeColor, kwargs="ui", default=configColors["ui"])
-        self.menuColors.add.color_input('Fondo: ', color_type='hex', onchange=changeColor, kwargs="background", default=configColors["background"])
-        self.menuColors.add.color_input('Comida: ', color_type='hex', onchange=changeColor, kwargs="food", default=configColors["food"])
-        self.menuColors.add.color_input('Cabeza: ', color_type='hex', onchange=changeColor, kwargs="head", default=configColors["head"])
-        self.menuColors.add.color_input('Cuerpo: ', color_type='hex', onchange=changeColor, kwargs="body", default=configColors["body"])
-        self.menuColors.add.vertical_margin(20)
-        self.menuColors.add.label("Jugador 2")
-        self.menuColors.add.color_input('Texto: ', color_type='hex', onchange=changeColor, kwargs="ui2", default=configColors["ui2"])
-        self.menuColors.add.color_input('Cabeza: ', color_type='hex', onchange=changeColor, kwargs="head2", default=configColors["head2"])
-        self.menuColors.add.color_input('Cuerpo: ', color_type='hex', onchange=changeColor, kwargs="body2", default=configColors["body2"])
+        self.menuColors.add.color_input('Marco: ', color_type='hex', onchange=changeColor, kwargs="marco", default=configColors["marco"], font_color="#375D64")
+        self.menuColors.add.color_input('Texto: ', color_type='hex', onchange=changeColor, kwargs="ui", default=configColors["ui"], font_color="#56929D")
+        self.menuColors.add.color_input('Fondo: ', color_type='hex', onchange=changeColor, kwargs="background", default=configColors["background"], font_color="#375D64")
+        self.menuColors.add.color_input('Comida: ', color_type='hex', onchange=changeColor, kwargs="food", default=configColors["food"], font_color="#56929D")
+        self.menuColors.add.vertical_margin(10)
+        self.menuColors.add.label("Jugador")
+        self.menuColors.add.color_input('Cabeza: ', color_type='hex', onchange=changeColor, kwargs="head", default=configColors["head"], font_color="#375D64")
+        self.menuColors.add.color_input('Cuerpo: ', color_type='hex', onchange=changeColor, kwargs="body", default=configColors["body"], font_color="#56929D")
+        
 
         self.menuNumber = pgm.pygame_menu.Menu('Reglas de juego', screenW, screenH,theme=mytheme, center_content=True)
+        self.menuNumber.set_sound(sound, False)
         def changeNumber(*args, **kwargs):
-            configNumbers.update({kwargs["kwargs"]: args[0]})
-        self.menuNumber.add.text_input('Tamaño del tablero: ', default=str(configNumbers["dimention"]), input_type=pgm.locals.INPUT_INT, maxchar=3, onchange=changeNumber, kwargs="dimention")
+            if (num := args[0]) < 2: num = 2
+            configNumbers.update({kwargs["kwargs"]: num})
+        def changeSpeed(*args, **kwargs):
+            if (num := args[0]) < 1: num = 1
+            num = 1000//num
+            configNumbers.update({"speed": num})
+
+        self.menuNumber.add.text_input('Tamaño del tablero: ', default=str(configNumbers["dimention"]), input_type=pgm.locals.INPUT_INT, maxchar=3, onchange=changeNumber, kwargs="dimention", font_color="#375D64")
+        self.menuNumber.add.text_input('Cantidad de comida en pantalla: ', default=str(configNumbers["numManzanas"]), input_type=pgm.locals.INPUT_INT, maxchar=3, onchange=changeNumber, kwargs="numManzanas", font_color="#56929D")
+        self.menuNumber.add.text_input('Velocidad: ', default=str(configNumbers["speed"]), input_type=pgm.locals.INPUT_INT, maxchar=3, onchange=changeSpeed, font_color="#375D64")
 
         self.menu = pgm.pygame_menu.Menu('Configuracion', screenW, screenH,theme=mytheme, columns=1, rows=4, center_content=True)
-        sound = pgm.sound.Sound()
-        sound.load_example_sounds()
-        self.menu.set_sound(sound, True)
+        self.menu.set_sound(sound, False)
         def next(): global page; page = 2
-        self.menu.add.button('Iniciar', next)
+        self.menu.add.button('Iniciar', next, font_color='#467780')
         self.menu.add.button('Reglas de juego', self.menuNumber)
         self.menu.add.button('Colores', self.menuColors)
         self.menu.add.button('Salir', pgm.events.EXIT)
@@ -99,7 +107,17 @@ class Start():
                     self.menu.resize(screenW, screenH)
                     self.menuColors.resize(screenW, screenH)
                     self.menuNumber.resize(screenW, screenH)
-        
+                if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
+                    self.menu.reset(1)
+
+            if configNumbers["multiSnake"] and not self.multi:
+                self.multi = True
+                self.menuNumber.add.selector('Multiplayer', items=["N", "S"], default=1 if configNumbers["multiSnake"] else 0 ,onchange=lambda *args, **kwargs: configNumbers.update({"multiSnake": args[0][1] == 1}), font_color="#56929D")
+                self.menuColors.add.vertical_margin(10)
+                self.menuColors.add.label("Jugador 2")
+                self.menuColors.add.color_input('Cabeza: ', color_type='hex', onchange=lambda *args, **kwargs: configColors.update({"head2": args[0]}), default=configColors["head2"], font_color="#375D64")
+                self.menuColors.add.color_input('Cuerpo: ', color_type='hex', onchange=lambda *args, **kwargs: configColors.update({"body2": args[0]}), default=configColors["body2"], font_color="#56929D")
+
             self.menu.update(events)
             self.menu.draw(self.screen)
 
@@ -125,7 +143,6 @@ class Game():
         self.screen.fill(configColors["marco"])
         self.matriz = [[0 for _ in range(dimention)] for _ in range(dimention)]
 
-        print(self.foods)
         for x,y in self.foods:
             self.matriz[y][x] = 5
 
@@ -140,7 +157,6 @@ class Game():
 
         if len(self.foods) < configNumbers["numManzanas"] and len(zeros := [[j, i] for i, row in enumerate(self.matriz) for j, val in enumerate(row) if val == 0]) > 1:
                 ram = choice(zeros)
-                print("Añadido comida ",ram)
                 self.foods.append(ram)
 
         realTime = pg.time.get_ticks()
@@ -162,27 +178,33 @@ class Game():
                 elif self.matriz[y][x] == 3:
                     draw(configColors["head2"])
                 elif self.matriz[y][x] == 4:
-                    print(configColors["body2"])
                     draw(configColors["body2"])
                 elif self.matriz[y][x] == 5:
                     draw(configColors["food"])
             
-        borde1X = (self.screen.get_size()[0] - dimention*self.box)//2
-        borde2X = dimention*self.box +(self.screen.get_size()[0] - dimention*self.box)//2
         textTam =self.screen.get_size()[1]//20
+        bordeStartX = (self.screen.get_size()[0] - dimention*self.box)//2
+        bordeEndX = bordeStartX + dimention*self.box
+
+        font = pg.font.SysFont("Arial", textTam)
+
+        text_surface = pg.font.SysFont("Arial", textTam//2).render("Presiona Esc para regresar", True, configColors["ui"])
+        bordeMidleX = bordeStartX +( dimention*self.box - text_surface.get_width())//2 
+        self.screen.blit(text_surface, (bordeMidleX,textTam//4))
         if not configNumbers["multiSnake"]:
-            self.screen.blit(pg.font.SysFont("Arial", textTam).render(f"Puntuacion: {self.snakes[0].point}", True, configColors["ui"]), (borde1X,0))
-            self.screen.blit(pg.font.SysFont("Arial", textTam).render(f"Récord: {self.snakes[0].record}", True, configColors["ui"]), (borde2X- textTam*6,0))
+            self.screen.blit(font.render(f"Puntuacion: {self.snakes[0].point}", True, configColors["ui"]), (bordeStartX,0))
+            self.screen.blit(font.render(f"Récord: {self.snakes[0].record}", True, configColors["ui"]), (bordeEndX- textTam*6,0))
         else:
-            self.screen.blit(pg.font.SysFont("Arial", textTam).render(f"Puntuacion 1: {self.snakes[0].point}", True, configColors["ui"]), (borde1X,0))
-            self.screen.blit(pg.font.SysFont("Arial", textTam).render(f"Puntuacion 2: {self.snakes[1].point}", True, configColors["ui2"]), (borde1X,textTam))
-            self.screen.blit(pg.font.SysFont("Arial", textTam).render(f"Récord 1: {self.snakes[0].record}", True, configColors["ui"]), (borde2X- textTam*6,0))
-            self.screen.blit(pg.font.SysFont("Arial", textTam).render(f"Récord 2: {self.snakes[1].record}", True, configColors["ui2"]), (borde2X- textTam*6,textTam))
+            self.screen.blit(font.render(f"Puntuacion: {self.snakes[0].point}", True, configColors["head"]), (bordeStartX,0))
+            self.screen.blit(font.render(f"Puntuacion: {self.snakes[1].point}", True, configColors["head2"]), (bordeStartX,textTam))
+            self.screen.blit(font.render(f"Récord: {self.snakes[0].record}", True, configColors["head"]), (bordeEndX- textTam*6,0))
+            self.screen.blit(font.render(f"Récord: {self.snakes[1].record}", True, configColors["head2"]), (bordeEndX- textTam*6,textTam))
 
         for event in events:
             if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 self.reset()
                 page = 1
+                pg.event.post(pg.event.Event(pg.VIDEORESIZE))
 
 class Snake():
     def __init__(self, mathead:int, matbody:int, foods:list[int]):
