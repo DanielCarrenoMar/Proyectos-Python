@@ -1,4 +1,5 @@
 import pygame as pg
+import pygame_menu as pgm
 from random import randrange, choice
 pg.init()
 H = pg.display.Info().current_h
@@ -15,12 +16,12 @@ configColors = {
     "body": "#10BD3E",
     "head2": "#FFFFFF",
     "body2": "#1FF000",
-    "comida": "#952121",
+    "food": "#952121",
     "ui": "#FFFFFF",
     "ui2": "#FFFFFF",
 }
 configNumbers = {
-    "dimention": 10,
+    "dimention": 25,
     "numManzanas": 1,
     "longManzana": 1,
     "speed": 200,
@@ -33,7 +34,7 @@ class Intro():
         self.alpha = -5
         self.imgLogo = pg.image.load("./images/logo.png")
         
-    def bucle(self):
+    def bucle(self, events:list):
         self.screen.fill("#000000")
         width, height = self.screen.get_size()
 
@@ -50,10 +51,57 @@ class Intro():
 class Start():
     def __init__(self):
         self.screen = pg.display.get_surface()
+        mytheme = pgm.Theme()
+        mytheme.title_bar_style = pgm.widgets.MENUBAR_STYLE_SIMPLE
+        mytheme.widget_font_color = "#1F4C52"
+        mytheme.selection_color = "#132F33"
+        mytheme.background_color = "#DAEBEE"
+        mytheme.title_font_color = "#DAEBEE"
+        mytheme.title_background_color = "#255243"
+        mytheme.title_background_color = "#255243"
+
+        screenW, screenH = self.screen.get_size()
+        self.menuColors = pgm.pygame_menu.Menu('Colores', screenW, screenH,theme=mytheme, center_content=True)
+        def changeColor(*args, **kwargs):
+            configColors.update({kwargs["kwargs"]: args[0]})
+        self.menuColors.add.color_input('Marco: ', color_type='hex', onchange=changeColor, kwargs="marco", default=configColors["marco"])
+        self.menuColors.add.color_input('Texto: ', color_type='hex', onchange=changeColor, kwargs="ui", default=configColors["ui"])
+        self.menuColors.add.color_input('Fondo: ', color_type='hex', onchange=changeColor, kwargs="background", default=configColors["background"])
+        self.menuColors.add.color_input('Comida: ', color_type='hex', onchange=changeColor, kwargs="food", default=configColors["food"])
+        self.menuColors.add.color_input('Cabeza: ', color_type='hex', onchange=changeColor, kwargs="head", default=configColors["head"])
+        self.menuColors.add.color_input('Cuerpo: ', color_type='hex', onchange=changeColor, kwargs="body", default=configColors["body"])
+        self.menuColors.add.vertical_margin(20)
+        self.menuColors.add.label("Jugador 2")
+        self.menuColors.add.color_input('Texto: ', color_type='hex', onchange=changeColor, kwargs="ui2", default=configColors["ui2"])
+        self.menuColors.add.color_input('Cabeza: ', color_type='hex', onchange=changeColor, kwargs="head2", default=configColors["head2"])
+        self.menuColors.add.color_input('Cuerpo: ', color_type='hex', onchange=changeColor, kwargs="body2", default=configColors["body2"])
+
+        self.menuNumber = pgm.pygame_menu.Menu('Reglas de juego', screenW, screenH,theme=mytheme, center_content=True)
+        def changeNumber(*args, **kwargs):
+            configNumbers.update({kwargs["kwargs"]: args[0]})
+        self.menuNumber.add.text_input('Tamaño del tablero: ', default=str(configNumbers["dimention"]), input_type=pgm.locals.INPUT_INT, maxchar=3, onchange=changeNumber, kwargs="dimention")
+
+        self.menu = pgm.pygame_menu.Menu('Configuracion', screenW, screenH,theme=mytheme, columns=1, rows=4, center_content=True)
+        sound = pgm.sound.Sound()
+        sound.load_example_sounds()
+        self.menu.set_sound(sound, True)
+        def next(): global page; page = 2
+        self.menu.add.button('Iniciar', next)
+        self.menu.add.button('Reglas de juego', self.menuNumber)
+        self.menu.add.button('Colores', self.menuColors)
+        self.menu.add.button('Salir', pgm.events.EXIT)
         
-    def bucle(self):
-        self.screen.fill("#000000")
-        pg.draw.circle(self.screen, "#FFFFFF", (30,30), 10)
+    def bucle(self, events:list):
+        if self.menu.is_enabled():
+            for event in events:
+                if event.type == pg.VIDEORESIZE:
+                    screenW, screenH = self.screen.get_size()
+                    self.menu.resize(screenW, screenH)
+                    self.menuColors.resize(screenW, screenH)
+                    self.menuNumber.resize(screenW, screenH)
+        
+            self.menu.update(events)
+            self.menu.draw(self.screen)
 
 class Game():
     def __init__(self):
@@ -65,12 +113,19 @@ class Game():
         self.time = 0
 
         self.conami = False
+    def reset(self):
+        self.foods = []
+        self.snakes = Snake(1,2,self.foods), Snake(3,4,self.foods)
+        for s in self.snakes:
+            s.reset = True
 
-    def bucle(self):
+    def bucle(self, events:list):
+        global page
         dimention = configNumbers["dimention"]
         self.screen.fill(configColors["marco"])
         self.matriz = [[0 for _ in range(dimention)] for _ in range(dimention)]
 
+        print(self.foods)
         for x,y in self.foods:
             self.matriz[y][x] = 5
 
@@ -85,6 +140,7 @@ class Game():
 
         if len(self.foods) < configNumbers["numManzanas"] and len(zeros := [[j, i] for i, row in enumerate(self.matriz) for j, val in enumerate(row) if val == 0]) > 1:
                 ram = choice(zeros)
+                print("Añadido comida ",ram)
                 self.foods.append(ram)
 
         realTime = pg.time.get_ticks()
@@ -106,21 +162,27 @@ class Game():
                 elif self.matriz[y][x] == 3:
                     draw(configColors["head2"])
                 elif self.matriz[y][x] == 4:
+                    print(configColors["body2"])
                     draw(configColors["body2"])
                 elif self.matriz[y][x] == 5:
-                    draw(configColors["comida"])
+                    draw(configColors["food"])
             
         borde1X = (self.screen.get_size()[0] - dimention*self.box)//2
         borde2X = dimention*self.box +(self.screen.get_size()[0] - dimention*self.box)//2
-        tam =self.screen.get_size()[1]//20
+        textTam =self.screen.get_size()[1]//20
         if not configNumbers["multiSnake"]:
-            self.screen.blit(pg.font.SysFont("Arial", tam).render(f"Puntuacion: {self.snakes[0].point}", True, configColors["ui"]), (borde1X,0))
-            self.screen.blit(pg.font.SysFont("Arial", tam).render(f"Récord: {self.snakes[0].record}", True, configColors["ui"]), (borde2X- tam*6,0))
+            self.screen.blit(pg.font.SysFont("Arial", textTam).render(f"Puntuacion: {self.snakes[0].point}", True, configColors["ui"]), (borde1X,0))
+            self.screen.blit(pg.font.SysFont("Arial", textTam).render(f"Récord: {self.snakes[0].record}", True, configColors["ui"]), (borde2X- textTam*6,0))
         else:
-            self.screen.blit(pg.font.SysFont("Arial", tam).render(f"Puntuacion 1: {self.snakes[0].point}", True, configColors["ui"]), (borde1X,0))
-            self.screen.blit(pg.font.SysFont("Arial", tam).render(f"Puntuacion 2: {self.snakes[1].point}", True, configColors["ui2"]), (borde1X,tam))
-            self.screen.blit(pg.font.SysFont("Arial", tam).render(f"Récord 1: {self.snakes[0].record}", True, configColors["ui"]), (borde2X- tam*6,0))
-            self.screen.blit(pg.font.SysFont("Arial", tam).render(f"Récord 2: {self.snakes[1].record}", True, configColors["ui2"]), (borde2X- tam*6,tam))
+            self.screen.blit(pg.font.SysFont("Arial", textTam).render(f"Puntuacion 1: {self.snakes[0].point}", True, configColors["ui"]), (borde1X,0))
+            self.screen.blit(pg.font.SysFont("Arial", textTam).render(f"Puntuacion 2: {self.snakes[1].point}", True, configColors["ui2"]), (borde1X,textTam))
+            self.screen.blit(pg.font.SysFont("Arial", textTam).render(f"Récord 1: {self.snakes[0].record}", True, configColors["ui"]), (borde2X- textTam*6,0))
+            self.screen.blit(pg.font.SysFont("Arial", textTam).render(f"Récord 2: {self.snakes[1].record}", True, configColors["ui2"]), (borde2X- textTam*6,textTam))
+
+        for event in events:
+            if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
+                self.reset()
+                page = 1
 
 class Snake():
     def __init__(self, mathead:int, matbody:int, foods:list[int]):
@@ -130,6 +192,7 @@ class Snake():
         self.matbody = matbody
         self.foods = foods
 
+        self.reset = True
         self.point = 0 
         self.record = 0
         self.time = 0 
@@ -140,6 +203,8 @@ class Snake():
         self.moved = False
 
     def gameover(self):
+        if sound: 
+            soundGameOver.play()
         self.move = [0,0]
         self.point = 0
         self.long = 1
@@ -148,6 +213,15 @@ class Snake():
         self.body = [self.head.copy()]
 
     def bucle(self, matriz:list, controls:list):
+        if self.reset:
+            self.reset = False
+            self.record = self.point
+            self.head = self.ramd2()
+            self.body = [self.head.copy()]
+            self.long = 1
+            self.move = [0,0]
+            self.point = 0
+
         if self.point > self.record:
                 self.record = self.point
                 if sound: soundRecord.play()
@@ -161,19 +235,21 @@ class Snake():
         matriz[self.body[-1][1]][self.body[-1][0]] = self.mathead
         
         key = pg.key.get_pressed()
-        if any(key[k] for k in controls[0]) and self.move[1] != 1:
-            self.move = [0,-1]
-            self.moved = True
-        elif any(key[k] for k in controls[1]) and self.move[1] != -1:
-            self.move = [0,1]
-            self.moved = True
-        elif any(key[k] for k in controls[2]) and self.move[0] != 1:
-            self.move = [-1,0]
-            self.moved = True
-        elif any(key[k] for k in controls[3]) and self.move[0] != -1:
-            self.move = [1,0]
-            self.moved = True      
+        if self.moved == False:
+            if any(key[k] for k in controls[0]) and self.move[1] != 1:
+                self.move = [0,-1]
+                self.moved = True
+            elif any(key[k] for k in controls[1]) and self.move[1] != -1:
+                self.move = [0,1]
+                self.moved = True
+            elif any(key[k] for k in controls[2]) and self.move[0] != 1:
+                self.move = [-1,0]
+                self.moved = True
+            elif any(key[k] for k in controls[3]) and self.move[0] != -1:
+                self.move = [1,0]
+                self.moved = True      
     def tick(self):
+        self.moved = False
         self.head[0] += self.move[0]; self.head[1] += self.move[1]
 
         for food in self.foods:
@@ -194,23 +270,8 @@ class Snake():
 
         if self.matriz[self.head[1]][self.head[0]] not in [0, 5, self.mathead]:
             self.gameover()
-     
-class Pages():
-    def __init__(self, pages:list):
-        self.main = 2
-        self.pages = pages
-        
-    def bucle(self):
-        if self.pages[self.main].bucle(): self.next()
-    def next(self):
-        self.main += 1
-        self.main %= len(self.pages)
-    def back(self):
-        self.main -= 1
-        self.main %= len(self.pages)
-    def goto(self, num:int):
-        self.main = num
-        self.main %= len(self.pages)
+
+page = 1
 
 sound = True
 if pg.mixer.get_init() is None:
@@ -219,18 +280,19 @@ else:
     soundMultiSnake = pg.mixer.Sound('./sounds/snakeMulti.mp3')
     soundRecord = pg.mixer.Sound('./sounds/record.mp3')
     soundPoint = pg.mixer.Sound('./sounds/point.mp3')
+    soundGameOver = pg.mixer.Sound('./sounds/gameOver.mp3')
 
 intro, start, game = Intro(), Start(), Game()
-pages = Pages([intro, start, game])
+pages = [intro, start, game]
+
 
 CODE = [pg.K_UP, pg.K_UP, pg.K_DOWN, pg.K_DOWN, pg.K_LEFT, pg.K_RIGHT, pg.K_LEFT, pg.K_RIGHT, pg.K_b, pg.K_a]
 code = []
 index = 0
 
 while True:
-    for event in pg.event.get():
-        if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
-            pages.goto(1)
+    events = pg.event.get()
+    for event in events:
         if event.type == pg.QUIT:
             pg.quit()
             quit()
@@ -247,7 +309,7 @@ while True:
                 code = []
                 index = 0
 
-    pages.bucle()
+    pages[page].bucle(events)
 
     pg.display.flip()
     CLOCK.tick(60)
