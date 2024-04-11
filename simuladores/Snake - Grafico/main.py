@@ -9,13 +9,15 @@ CLOCK = pg.time.Clock()
 pg.display.set_mode((W//2,H//2), pg.RESIZABLE) 
 pg.display.set_caption("Snake")
 
+listColorName = ["Blanco", "Negro", "Verde Oscuro", "Verde", "Rojo"]
+listColor = ["#FFFFFF", "#000000","#01DF3C","#10BD3E", "#952121"]
 configColors = {
     "marco": "#FFFFFF",
     "background": "#000000",
     "head": "#01DF3C",
     "body": "#10BD3E",
     "head2": "#FFFFFF",
-    "body2": "#1FF000",
+    "body2": "#FFFFFF",
     "food": "#952121",
     "ui": "#FFFFFF",
 }
@@ -71,18 +73,15 @@ class Start():
         self.menuColors = pgm.pygame_menu.Menu('Colores', screenW, screenH,theme=mytheme, center_content=True)
         self.menuColors.set_sound(sound, False)
         def changeColor(*args, **kwargs):
-            color = args[0]
-            if args[0][0] == -1: color = "#000000"
-            configColors.update({kwargs["kwargs"]: color})
-        self.menuColors.add.color_input('Marco: ', color_type='hex', onchange=changeColor, kwargs="marco", default=configColors["marco"], font_color="#375D64")
-        self.menuColors.add.color_input('Texto: ', color_type='hex', onchange=changeColor, kwargs="ui", default=configColors["ui"], font_color="#56929D")
-        self.menuColors.add.color_input('Fondo: ', color_type='hex', onchange=changeColor, kwargs="background", default=configColors["background"], font_color="#375D64")
-        self.menuColors.add.color_input('Comida: ', color_type='hex', onchange=changeColor, kwargs="food", default=configColors["food"], font_color="#56929D")
+            configColors.update({kwargs["kwargs"]: listColor[args[0][1]]})
+        self.menuColors.add.dropselect('Marco: ', items=[(i, "") for i in listColorName], default=listColor.index(configColors["marco"]) ,onchange=changeColor, kwargs="marco", font_color="#375D64")
+        self.menuColors.add.dropselect('Texto: ', items=[(i, "") for i in listColorName], default=listColor.index(configColors["ui"]) ,onchange=changeColor, kwargs="ui", font_color="#56929D")
+        self.menuColors.add.dropselect('Fondo: ', items=[(i, "") for i in listColorName], default=listColor.index(configColors["background"]) ,onchange=changeColor, kwargs="background", font_color="#375D64")
+        self.menuColors.add.dropselect('Comida: ', items=[(i, "") for i in listColorName], default=listColor.index(configColors["food"]) ,onchange=changeColor, kwargs="food", font_color="#56929D")
         self.menuColors.add.vertical_margin(10)
         self.menuColors.add.label("Jugador")
-        self.menuColors.add.color_input('Cabeza: ', color_type='hex', onchange=changeColor, kwargs="head", default=configColors["head"], font_color="#375D64")
-        self.menuColors.add.color_input('Cuerpo: ', color_type='hex', onchange=changeColor, kwargs="body", default=configColors["body"], font_color="#56929D")
-        
+        self.menuColors.add.dropselect('Cabeza: ', items=[(i, "") for i in listColorName], default=listColor.index(configColors["head"]) ,onchange=changeColor, kwargs="head", font_color="#375D64")
+        self.menuColors.add.dropselect('Cuerpo: ', items=[(i, "") for i in listColorName], default=listColor.index(configColors["body"]) ,onchange=changeColor, kwargs="body", font_color="#56929D")
 
         self.menuNumber = pgm.pygame_menu.Menu('Parametros de juego', screenW, screenH,theme=mytheme, center_content=True)
         self.menuNumber.set_sound(sound, False)
@@ -124,8 +123,8 @@ class Start():
                 self.menuNumber.add.selector('Multiplayer', items=["N", "S"], default=1 if configNumbers["multiSnake"] else 0 ,onchange=lambda *args, **kwargs: configNumbers.update({"multiSnake": args[0][1] == 1}), font_color="#375D64")
                 self.menuColors.add.vertical_margin(10)
                 self.menuColors.add.label("Jugador 2")
-                self.menuColors.add.color_input('Cabeza: ', color_type='hex', onchange=lambda *args, **kwargs: configColors.update({"head2": args[0]}), default=configColors["head2"], font_color="#375D64")
-                self.menuColors.add.color_input('Cuerpo: ', color_type='hex', onchange=lambda *args, **kwargs: configColors.update({"body2": args[0]}), default=configColors["body2"], font_color="#56929D")
+                self.menuColors.add.dropselect('Cabeza: ', items=[(i, "") for i in listColorName], default=listColor.index(configColors["head2"]) ,onchange=lambda *args, **kwargs: configColors.update({"head2": listColor[args[0][1]]}), kwargs="head2", font_color="#375D64")
+                self.menuColors.add.dropselect('Cuerpo: ', items=[(i, "") for i in listColorName], default=listColor.index(configColors["body2"]) ,onchange=lambda *args, **kwargs: configColors.update({"body2": listColor[args[0][1]]}), kwargs="body2", font_color="#56929D")
 
             self.menu.update(events)
             self.menu.draw(self.screen)
@@ -306,7 +305,7 @@ class Snake():
         if self.matriz[self.head[1]][self.head[0]] not in [0, 5, self.mathead]:
             self.gameover()
 
-page = 0
+page = 1
 win = False
 
 sound = True
