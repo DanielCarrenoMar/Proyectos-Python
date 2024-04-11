@@ -23,7 +23,7 @@ configNumbers = {
     "dimention": 25,
     "numManzanas": 1,
     "longManzana": 1,
-    "speed": 200,
+    "speed": 250,
     "multiSnake": False,
 }
 
@@ -34,6 +34,10 @@ class Intro():
         self.imgLogo = pg.image.load("./images/logo.png")
         
     def bucle(self, events:list):
+        global page
+        for event in events:
+            if event.type == pg.KEYDOWN: page = 1
+
         self.screen.fill("#000000")
         width, height = self.screen.get_size()
 
@@ -45,7 +49,7 @@ class Intro():
         self.alpha += 1
 
         if self.alpha > 155:
-            return True
+            page = 1
 
 class Start():
     def __init__(self):
@@ -53,6 +57,7 @@ class Start():
         self.multi = False
         sound = pgm.sound.Sound()
         sound.load_example_sounds()
+        self.imgWin = pg.image.load("./images/win.png")
 
         mytheme = pgm.Theme()
         mytheme.title_bar_style = pgm.widgets.MENUBAR_STYLE_SIMPLE
@@ -66,7 +71,9 @@ class Start():
         self.menuColors = pgm.pygame_menu.Menu('Colores', screenW, screenH,theme=mytheme, center_content=True)
         self.menuColors.set_sound(sound, False)
         def changeColor(*args, **kwargs):
-            configColors.update({kwargs["kwargs"]: args[0]})
+            color = args[0]
+            if args[0][0] == -1: color = "#000000"
+            configColors.update({kwargs["kwargs"]: color})
         self.menuColors.add.color_input('Marco: ', color_type='hex', onchange=changeColor, kwargs="marco", default=configColors["marco"], font_color="#375D64")
         self.menuColors.add.color_input('Texto: ', color_type='hex', onchange=changeColor, kwargs="ui", default=configColors["ui"], font_color="#56929D")
         self.menuColors.add.color_input('Fondo: ', color_type='hex', onchange=changeColor, kwargs="background", default=configColors["background"], font_color="#375D64")
@@ -77,25 +84,27 @@ class Start():
         self.menuColors.add.color_input('Cuerpo: ', color_type='hex', onchange=changeColor, kwargs="body", default=configColors["body"], font_color="#56929D")
         
 
-        self.menuNumber = pgm.pygame_menu.Menu('Reglas de juego', screenW, screenH,theme=mytheme, center_content=True)
+        self.menuNumber = pgm.pygame_menu.Menu('Parametros de juego', screenW, screenH,theme=mytheme, center_content=True)
         self.menuNumber.set_sound(sound, False)
         def changeNumber(*args, **kwargs):
             if (num := args[0]) < 2: num = 2
             configNumbers.update({kwargs["kwargs"]: num})
         def changeSpeed(*args, **kwargs):
             if (num := args[0]) < 1: num = 1
-            num = 1000//num
+            num = 1000-num*10
+            if (args[0]) == 99: num = 1
             configNumbers.update({"speed": num})
 
         self.menuNumber.add.text_input('Tamaño del tablero: ', default=str(configNumbers["dimention"]), input_type=pgm.locals.INPUT_INT, maxchar=3, onchange=changeNumber, kwargs="dimention", font_color="#375D64")
         self.menuNumber.add.text_input('Cantidad de comida en pantalla: ', default=str(configNumbers["numManzanas"]), input_type=pgm.locals.INPUT_INT, maxchar=3, onchange=changeNumber, kwargs="numManzanas", font_color="#56929D")
-        self.menuNumber.add.text_input('Velocidad: ', default=str(configNumbers["speed"]), input_type=pgm.locals.INPUT_INT, maxchar=3, onchange=changeSpeed, font_color="#375D64")
+        self.menuNumber.add.text_input('Aumento por comida: ', default=str(configNumbers["longManzana"]), input_type=pgm.locals.INPUT_INT, maxchar=3, onchange=changeNumber, kwargs="longManzana", font_color="#375D64")
+        self.menuNumber.add.text_input('Velocidad: ', default=str(100-configNumbers["speed"]//10), input_type=pgm.locals.INPUT_INT, maxchar=2, onchange=changeSpeed, font_color="#56929D")
 
         self.menu = pgm.pygame_menu.Menu('Configuracion', screenW, screenH,theme=mytheme, columns=1, rows=4, center_content=True)
         self.menu.set_sound(sound, False)
         def next(): global page; page = 2
         self.menu.add.button('Iniciar', next, font_color='#467780')
-        self.menu.add.button('Reglas de juego', self.menuNumber)
+        self.menu.add.button('Parametros de juego', self.menuNumber)
         self.menu.add.button('Colores', self.menuColors)
         self.menu.add.button('Salir', pgm.events.EXIT)
         
@@ -112,7 +121,7 @@ class Start():
 
             if configNumbers["multiSnake"] and not self.multi:
                 self.multi = True
-                self.menuNumber.add.selector('Multiplayer', items=["N", "S"], default=1 if configNumbers["multiSnake"] else 0 ,onchange=lambda *args, **kwargs: configNumbers.update({"multiSnake": args[0][1] == 1}), font_color="#56929D")
+                self.menuNumber.add.selector('Multiplayer', items=["N", "S"], default=1 if configNumbers["multiSnake"] else 0 ,onchange=lambda *args, **kwargs: configNumbers.update({"multiSnake": args[0][1] == 1}), font_color="#375D64")
                 self.menuColors.add.vertical_margin(10)
                 self.menuColors.add.label("Jugador 2")
                 self.menuColors.add.color_input('Cabeza: ', color_type='hex', onchange=lambda *args, **kwargs: configColors.update({"head2": args[0]}), default=configColors["head2"], font_color="#375D64")
@@ -120,6 +129,8 @@ class Start():
 
             self.menu.update(events)
             self.menu.draw(self.screen)
+
+            if win:self.screen.blit(self.imgWin, ((self.screen.get_width()-64,0)))
 
 class Game():
     def __init__(self):
@@ -149,15 +160,17 @@ class Game():
         if not configNumbers["multiSnake"]: 
             self.snakes[0].bucle(self.matriz, [[pg.K_UP,pg.K_w],[pg.K_DOWN, pg.K_s],[pg.K_LEFT, pg.K_a],[pg.K_RIGHT, pg.K_d]])
         else:
-            if not self.conami and sound:
-                soundMultiSnake.play()
-                self.conami = True
             self.snakes[0].bucle(self.matriz, [[pg.K_UP],[pg.K_DOWN],[pg.K_LEFT],[pg.K_RIGHT]])
             self.snakes[1].bucle(self.matriz,  [[pg.K_w],[pg.K_s],[pg.K_a],[pg.K_d]])
 
-        if len(self.foods) < configNumbers["numManzanas"] and len(zeros := [[j, i] for i, row in enumerate(self.matriz) for j, val in enumerate(row) if val == 0]) > 1:
+        if len(self.foods) < configNumbers["numManzanas"] and len(zeros := [[j, i] for i, row in enumerate(self.matriz) for j, val in enumerate(row) if val == 0]) >= 1:
                 ram = choice(zeros)
                 self.foods.append(ram)
+
+        if len([[j, i] for i, row in enumerate(self.matriz) for j, val in enumerate(row) if val in [0,1]]) == 1:
+            if sound: soundMultiSnake.play()
+            global win
+            if not win: win = True
 
         realTime = pg.time.get_ticks()
         if realTime - self.time > configNumbers["speed"]: 
@@ -293,7 +306,8 @@ class Snake():
         if self.matriz[self.head[1]][self.head[0]] not in [0, 5, self.mathead]:
             self.gameover()
 
-page = 1
+page = 0
+win = False
 
 sound = True
 if pg.mixer.get_init() is None:
@@ -327,6 +341,7 @@ while True:
                 if code == CODE:
                     index = 0
                     configNumbers["multiSnake"] = True
+                    if sound: soundMultiSnake.play()
             else:
                 code = []
                 index = 0
