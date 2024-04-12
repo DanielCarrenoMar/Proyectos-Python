@@ -9,15 +9,15 @@ CLOCK = pg.time.Clock()
 pg.display.set_mode((W//2,H//2), pg.RESIZABLE) 
 pg.display.set_caption("Snake")
 
-listColorName = ["Blanco", "Negro", "Verde Oscuro", "Verde", "Rojo"]
-listColor = ["#FFFFFF", "#000000","#01DF3C","#10BD3E", "#952121"]
+listColorName = ["Azul", "Azul Oscuro", "Amarillo", "Blanco", "Celeste", "Colmena 1", "Colmena 2", "Colmena 3", "Gris", "Rosado", "Rojo", "Morado", "Negro", "Naranja", "Verde Oscuro", "Verde"]
+listColor = ["#0079B0", "#003AB0", "#EBF41C","#FFFFFF", "#00BEBF", "#F4BE2E", "#35AEDC", "#047732", "#808080", "#FF63A8", "#952121", "#7E228A", "#000000", "#FF8614","#10BD3E","#01DF3C"]
 configColors = {
     "marco": "#FFFFFF",
     "background": "#000000",
-    "head": "#01DF3C",
-    "body": "#10BD3E",
-    "head2": "#FFFFFF",
-    "body2": "#FFFFFF",
+    "head": "#10BD3E",
+    "body": "#01DF3C",
+    "head2": "#F4BE2E",
+    "body2": "#EBF41C",
     "food": "#952121",
     "ui": "#FFFFFF",
 }
@@ -74,14 +74,14 @@ class Start():
         self.menuColors.set_sound(sound, False)
         def changeColor(*args, **kwargs):
             configColors.update({kwargs["kwargs"]: listColor[args[0][1]]})
-        self.menuColors.add.dropselect('Marco: ', items=[(i, "") for i in listColorName], default=listColor.index(configColors["marco"]) ,onchange=changeColor, kwargs="marco", font_color="#375D64")
-        self.menuColors.add.dropselect('Texto: ', items=[(i, "") for i in listColorName], default=listColor.index(configColors["ui"]) ,onchange=changeColor, kwargs="ui", font_color="#56929D")
-        self.menuColors.add.dropselect('Fondo: ', items=[(i, "") for i in listColorName], default=listColor.index(configColors["background"]) ,onchange=changeColor, kwargs="background", font_color="#375D64")
-        self.menuColors.add.dropselect('Comida: ', items=[(i, "") for i in listColorName], default=listColor.index(configColors["food"]) ,onchange=changeColor, kwargs="food", font_color="#56929D")
+        self.menuColors.add.dropselect('Marco = ', items=[(i, "") for i in listColorName], default=listColor.index(configColors["marco"]) ,onchange=changeColor, kwargs="marco", font_color="#375D64")
+        self.menuColors.add.dropselect('Texto = ', items=[(i, "") for i in listColorName], default=listColor.index(configColors["ui"]) ,onchange=changeColor, kwargs="ui", font_color="#56929D")
+        self.menuColors.add.dropselect('Fondo = ', items=[(i, "") for i in listColorName], default=listColor.index(configColors["background"]) ,onchange=changeColor, kwargs="background", font_color="#375D64")
+        self.menuColors.add.dropselect('Comida = ', items=[(i, "") for i in listColorName], default=listColor.index(configColors["food"]) ,onchange=changeColor, kwargs="food", font_color="#56929D")
         self.menuColors.add.vertical_margin(10)
         self.menuColors.add.label("Jugador")
-        self.menuColors.add.dropselect('Cabeza: ', items=[(i, "") for i in listColorName], default=listColor.index(configColors["head"]) ,onchange=changeColor, kwargs="head", font_color="#375D64")
-        self.menuColors.add.dropselect('Cuerpo: ', items=[(i, "") for i in listColorName], default=listColor.index(configColors["body"]) ,onchange=changeColor, kwargs="body", font_color="#56929D")
+        self.menuColors.add.dropselect('Cabeza = ', items=[(i, "") for i in listColorName], default=listColor.index(configColors["head"]) ,onchange=changeColor, kwargs="head", font_color="#375D64")
+        self.menuColors.add.dropselect('Cuerpo = ', items=[(i, "") for i in listColorName], default=listColor.index(configColors["body"]) ,onchange=changeColor, kwargs="body", font_color="#56929D")
 
         self.menuNumber = pgm.pygame_menu.Menu('Parametros de juego', screenW, screenH,theme=mytheme, center_content=True)
         self.menuNumber.set_sound(sound, False)
@@ -94,10 +94,10 @@ class Start():
             if (args[0]) == 99: num = 1
             configNumbers.update({"speed": num})
 
-        self.menuNumber.add.text_input('Tamaño del tablero: ', default=str(configNumbers["dimention"]), input_type=pgm.locals.INPUT_INT, maxchar=3, onchange=changeNumber, kwargs="dimention", font_color="#375D64")
-        self.menuNumber.add.text_input('Cantidad de comida en pantalla: ', default=str(configNumbers["numManzanas"]), input_type=pgm.locals.INPUT_INT, maxchar=3, onchange=changeNumber, kwargs="numManzanas", font_color="#56929D")
-        self.menuNumber.add.text_input('Aumento por comida: ', default=str(configNumbers["longManzana"]), input_type=pgm.locals.INPUT_INT, maxchar=3, onchange=changeNumber, kwargs="longManzana", font_color="#375D64")
-        self.menuNumber.add.text_input('Velocidad: ', default=str(100-configNumbers["speed"]//10), input_type=pgm.locals.INPUT_INT, maxchar=2, onchange=changeSpeed, font_color="#56929D")
+        self.menuNumber.add.text_input('Tamaño del tablero = ', default=str(configNumbers["dimention"]), input_type=pgm.locals.INPUT_INT, maxchar=3, onchange=changeNumber, kwargs="dimention", font_color="#375D64")
+        self.menuNumber.add.text_input('Cantidad de comida en pantalla = ', default=str(configNumbers["numManzanas"]), input_type=pgm.locals.INPUT_INT, maxchar=3, onchange=changeNumber, kwargs="numManzanas", font_color="#56929D")
+        self.menuNumber.add.text_input('Aumento por comida = ', default=str(configNumbers["longManzana"]), input_type=pgm.locals.INPUT_INT, maxchar=3, onchange=changeNumber, kwargs="longManzana", font_color="#375D64")
+        self.menuNumber.add.text_input('Velocidad = ', default=str(100-configNumbers["speed"]//10), input_type=pgm.locals.INPUT_INT, maxchar=2, onchange=changeSpeed, font_color="#56929D")
 
         self.menu = pgm.pygame_menu.Menu('Configuracion', screenW, screenH,theme=mytheme, columns=1, rows=4, center_content=True)
         self.menu.set_sound(sound, False)
