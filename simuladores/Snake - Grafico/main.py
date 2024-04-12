@@ -305,7 +305,7 @@ class Snake():
         if self.matriz[self.head[1]][self.head[0]] not in [0, 5, self.mathead]:
             self.gameover()
 
-page = 1
+page = 0
 win = False
 
 sound = True
@@ -330,8 +330,7 @@ while True:
     for event in events:
         if event.type == pg.QUIT:
             pg.quit()
-            quit()
-
+            quit()      
         if event.type == pg.KEYDOWN:
             if event.key == CODE[index]:
                 code.append(event.key)
