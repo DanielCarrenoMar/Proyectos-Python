@@ -2,6 +2,32 @@ import datetime
 from os import system
 from colorama import Fore, just_fix_windows_console, Back, Style
 
+"""
+1.-Usando archivos de texto (secuenciales), crear las siguientes estructuras de
+archivos, para el registro de los empleados de la UCAB:
+Departamentos ( CódigoDpto, NombreDpto) y
+Empleados (Cédula, Nombre, Sexo, CodigoDpto, Sueldo)
+o Para el Sexo use los valores “M” y “F”
+o Para los CódigosDpto use valores enteros
+Para ello, elabore los programas en Python que :
+* Reciba por pantalla los Códigos y nombre de los departamentos y los almacene
+    en un archivo llamado DEPARTAMENTOS
+* Reciba por pantalla la cédula, el nombre, el sexo, el código del departamento y
+    el sueldo de cada uno de los Empleados y los almacene en un archivo llamado
+    EMPLEADOS. El programa debe permitir ingresar varios empleados hasta que
+    el usuario decida no ingresar más. No solicitar con antelación la cantidad de
+    empleados a almacenar.
+* A partir de los archivos creados , DEPARTAMENTOS y EMPLEADOS, generar
+    un listado (archivo de salida tipo TEXTO) llamado REPORTE que contenga por
+    Depatamento los Empleados que tienen un sueldo en un rango dado..
+    El archivo de salida (al que llamaremos Reporte.TXT) debe mostrar el titulo
+    “Empleados por departamento con sueldo entre xxxx – yyyyy Bs.“ y luego para cada
+    Departamento mostrar su Código y su Nombre y debajo debe mostrar la cédula,
+    nombre , sexo y sueldo de los empleados. A CONTINUACIÓN SE DA UN
+    EJEMPLO DEL REPORTE DE SALIDA SOLICITADO. Este ejercicio deben
+    hacerlo luego usando los archivos de entrada en formato Binario. 
+"""
+
 def cabeceraTXT(txt:str, maxSueldo, minSueldo, departamento):
     date = datetime.datetime.now()
     fecha = f"{date.year}/{date.month}/{date.day}"
