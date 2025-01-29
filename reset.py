@@ -1,4 +1,8 @@
-nombre_archivo = 'direccion'
+import tkinter as tk
+from tkinter import messagebox
+root = tk.Tk()
+
+path = ''
 
 contenido = [
     "package src.main;",
@@ -44,7 +48,16 @@ contenido = [
     "}"
 ]
 
-with open(nombre_archivo, 'w', encoding='utf-8') as archivo:
+if (path == ''):
+    print('El archivo no ha sido especificado.')
+    root.withdraw()
+    messagebox.showinfo("Error", f'path no especificado.')
+    root.destroy()
+    exit()
+
+with open(path, 'w', encoding='utf-8') as archivo:
     archivo.write('\n'.join(contenido))
 
-print(f'El archivo {nombre_archivo} ha sido sobrescrito con éxito.')
+root.withdraw()
+messagebox.showinfo("Confirmación", f'El archivo {path} ha sido sobrescrito con éxito.')
+root.destroy()
